@@ -1,0 +1,27 @@
+To ensure the highest level of protection for PRODUCT_NAME, what security settings should be included in the security baseline for this product? Please respond using the following model:
+
+{
+  "AmazonS3SecurityControls": [
+    {
+      "SecurityDomain": "Identity and Access Management",
+      "ControlType": "Access Control",
+      "Control": "Bucket Policies",
+      "Description": "Define restrictive bucket policies following the principle of least privilege, allowing access only to necessary entities.",
+      "DependsOnCompanyDefinitions": "Yes"
+    },
+    {
+      "SecurityDomain": "Encryption",
+      "ControlType": "Technical Control",
+      "Control": "In-Transit and At-Rest Encryption",
+      "Description": "Enable at-rest encryption using Amazon S3 SSE and ensure the use of HTTPS to encrypt data in transit.",
+      "DependsOnCompanyDefinitions": "No"
+    }
+  ]
+}
+
+{RULES}
+- The SecurityDomain field: Describes the security area to which the control is related (e.g., "Identity and Access Management", "Encryption").
+- The ControlType field: Indicates whether the control is an access control, technical control, etc.
+- The Control field: The name of the security control (e.g., "Bucket Policies", "In-Transit and At-Rest Encryption").
+- The Description field: A detailed description of the control, explaining what it does and why it's important for the security of Amazon S3.
+- The DependsOnCompanyDefinitions field: Indicates whether the implementation of the control depends on the company's specific policies and definitions (Yes) or if it's a standard practice that can be universally applied (No).
