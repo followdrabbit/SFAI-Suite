@@ -19,7 +19,6 @@ OPENAI_API_KEY=your_api_key_here
 ```python
 manager = OpenAIAssistantManager(api_key)
 ```
-
 Initializes the manager with an asynchronous OpenAI client using the provided api_key.
 
 
@@ -38,7 +37,6 @@ Fetches the list of assistants asynchronously, removing any duplicates found by 
 ```python
 async def create_assistant(self, name, instructions, tools, model)
 ```
-
 Asynchronously creates a new assistant with the given name, instructions, tools, and model.
 
 
@@ -79,8 +77,15 @@ Deletes a file association from an assistant.
 ```python
 async def list_assistant_files(self, assistant_id)
 ```
-
 Lists all files associated with an assistant.
+
+
+### retrieve_assistant
+
+```python
+async def retrieve_assistant(self, assistant_id: str)
+```
+Fetch detailed information about a specific assistant using its unique ID.
 
 
 ## Usage Example
@@ -112,3 +117,12 @@ unique_assistants = await manager.list_assistants()
 for name, id in unique_assistants.items():
     print(f"Name: {name}, ID: {id}")
 ```
+
+
+### Retrieve assistant
+
+```python
+assistant_details = await manager.retrieve_assistant(assistant_id)
+print(assistant_details)
+```
+

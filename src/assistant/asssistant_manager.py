@@ -96,6 +96,12 @@ class OpenAIAssistantManager:
         # 'assistant_id' is the ID of the assistant whose files are to be listed.
         return await self.client.beta.assistants.files.list(assistant_id)
 
+    async def retrieve_assistant(self, assistant_id: str):
+        # Retrieve the details of a specific assistant asynchronously.
+        # 'assistant_id' is the ID of the assistant to be retrieved.
+        # This method returns the detailed information of the specified assistant.
+        return await self.client.beta.assistants.retrieve(assistant_id)
+
 
 async def main():
     # Load environment variables (API key) from the .env file.
@@ -125,6 +131,11 @@ async def main():
     unique_assistants = await manager.list_assistants()
     for name, id in unique_assistants.items():
         print(f"Name: {name}, ID: {id}")
+    
+    # Example usage of retrieve_assistant
+    #assistant_id = "assistant_id_here"  # Replace with the actual assistant's ID
+    #assistant_details = await manager.retrieve_assistant(assistant_id)
+    #print(assistant_details)
 
 if __name__ == "__main__":
     asyncio.run(main())
