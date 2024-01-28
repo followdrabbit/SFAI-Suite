@@ -3,6 +3,7 @@ from utils.thread_manager import OpenAIThreadManager
 from utils.text_replacer import replace_text_in_file
 from utils.asssistant_manager import OpenAIAssistantManager
 from utils.runs_manager import OpenAIRunsManager
+from utils.json_etl_integrator import extract_info
 
 
 async def create_baseline(technology, api_key):
@@ -32,21 +33,17 @@ async def create_baseline(technology, api_key):
     print("ID da nova thread criada:", new_thread_id)
 
     # Calls the function resposible for update the prompt with the provided technology
-    new_prompt = replace_text_in_file('prompts/controls_prompt.txt', 'PRODUCT_NAME', technology)
+    new_prompt = replace_text_in_file('prompts/get_controls.txt', 'PRODUCT_NAME', technology)
 
     # Criando uma nova mensagem na thread criada
     new_message = await thread_manager.create_message(new_thread_id, new_prompt)
-    print("Detalhes da nova mensagem:", new_message)
-
 
     # Create an instance of the assistant manager with the API key
     runs_manager = OpenAIRunsManager(api_key)
 
     # Calls the run_thread function and gets the 
-    #run_id=run_thread(new_thread_id, assistant_id)
     run_id = await runs_manager.create_run(new_thread_id, assistant_id)
 
 
     # Calls the get_result function
-    #check_assistant_status(new_thread_id, run_id, assistant_id)
     await runs_manager.process_run(new_thread_id, run_id)

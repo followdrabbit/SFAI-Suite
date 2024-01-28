@@ -2,6 +2,7 @@ import openai
 import asyncio
 import time
 import os
+import json
 from dotenv import load_dotenv
 
 class OpenAIRunsManager:
@@ -39,6 +40,10 @@ class OpenAIRunsManager:
                         msg = {"role": message.role, "message": message.content[0].text.value}
                         print(msg)
                         result_messages.append(msg)
+
+                    # Salvando os resultados no caminho especificado
+                    with open('data/raw/result_messages.json', 'w', encoding='utf-8') as f:
+                        json.dump(result_messages, f, ensure_ascii=False, indent=4)
 
                     return result_messages
                 else:
