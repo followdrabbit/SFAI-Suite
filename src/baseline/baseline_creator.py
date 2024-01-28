@@ -3,10 +3,10 @@ from utils.thread_manager import OpenAIThreadManager
 from utils.text_replacer import replace_text_in_file
 from utils.asssistant_manager import OpenAIAssistantManager
 from utils.runs_manager import OpenAIRunsManager
-from utils.json_etl_integrator import extract_info
+import json
+import datetime
 
-
-async def create_baseline(technology, api_key):
+async def create_baseline(technology, api_key, ticket):
 
     # Create an instance of the assistant manager with the API key
     assistant_manager = OpenAIAssistantManager(api_key)
@@ -30,7 +30,6 @@ async def create_baseline(technology, api_key):
 
     # Criando uma nova thread
     new_thread_id = await thread_manager.create_thread()
-    print("ID da nova thread criada:", new_thread_id)
 
     # Calls the function resposible for update the prompt with the provided technology
     new_prompt = replace_text_in_file('prompts/get_controls.txt', 'PRODUCT_NAME', technology)
@@ -46,4 +45,13 @@ async def create_baseline(technology, api_key):
 
 
     # Calls the get_result function
-    await runs_manager.process_run(new_thread_id, run_id)
+    result_raw = await runs_manager.process_run(new_thread_id, run_id, ticket)
+
+
+    # Obtendo o datetime atual e formatando para string
+    current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+
+    # Salvando os resultados no caminho especificado
+    with open(f'data/raw/{ticket}_controls_{current_time}.json', 'w', encoding='utf-8') as f:
+        json.dump(result_raw, f, ensure_ascii=False, indent=4)
