@@ -1,7 +1,6 @@
 import openai
 import asyncio
 import os
-import json
 from typing import Optional
 from dotenv import load_dotenv
 
@@ -97,12 +96,12 @@ async def main():
     manager = OpenAIAssistantManager(api_key)
 
     # Create a new assistant (example).
-   # await manager.create_assistant(
-   #     name="Cloud Security Expert",
-   #     instructions="An assistant specialized in cloud information security.",
-   #     tools=[{"type": "code_interpreter"}],
-   #     model="gpt-4"
-   # )
+    # await manager.create_assistant(
+    #     name="Cloud Security Expert",
+    #     instructions="An assistant specialized in cloud information security.",
+    #     tools=[{"type": "code_interpreter"}],
+    #     model="gpt-4"
+    # )
 
     # Update an assistant's name (example).
     # Replace 'assistant_id_here' with the actual assistant's ID.
