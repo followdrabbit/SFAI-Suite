@@ -23,14 +23,14 @@ class OpenAIRunsManager:
     async def cancel_run(self, thread_id: str, run_id: str):
         return await self.client.beta.threads.runs.cancel(thread_id=thread_id, run_id=run_id)
 
-    async def process_run(self, thread_id: str, run_id: str):
+    async def process_run(self, thread_id: str, run_id: str, ticket: str):
         try:
-            print("Checking assistant status.")
+            print("Checking run status.")
             while True:
                 run = openai.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
 
                 if run.status == "completed":
-                    print("Done!")
+                    print("Run Completed")
                     messages = openai.beta.threads.messages.list(thread_id=thread_id)
 
                     result_messages = []
@@ -40,18 +40,13 @@ class OpenAIRunsManager:
                         msg = {"role": message.role, "message": message.content[0].text.value}
                         print(msg)
                         result_messages.append(msg)
-
-                    # Salvando os resultados no caminho especificado
-                    with open('data/raw/result_messages.json', 'w', encoding='utf-8') as f:
-                        json.dump(result_messages, f, ensure_ascii=False, indent=4)
-
                     return result_messages
                 else:
                     print("In progress...")
                     time.sleep(5)
 
         except Exception as e:
-            print(f"Error checking the assistant status: {e}")
+            print(f"Error checking the run status: {e}")
 
 
 async def main():
