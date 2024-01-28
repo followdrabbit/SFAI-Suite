@@ -33,11 +33,11 @@ class OpenAIRunsManager:
                     messages = openai.beta.threads.messages.list(thread_id=thread_id)
 
                     result_messages = []
-                    print("Messages:")
+                    # print("Messages:")
                     for message in messages:
                         assert message.content[0].type == "text"
                         msg = {"role": message.role, "message": message.content[0].text.value}
-                        print(msg)
+                        #print(msg)
                         result_messages.append(msg)
                     return result_messages
                 else:

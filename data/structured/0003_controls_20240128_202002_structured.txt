@@ -1,0 +1,25 @@
+1. **Identity and Access Management (IAM) Policies**
+    - *Rational:* These policies ensure that only authorized and authenticated users have access to AWS Cloud Map. They also allow permissions to be explicitly denied or allowed for different AWS services. By managing permissions, you ensure that users under your AWS account have varying degrees of access to AWS Cloud Map depending upon their role and responsibility.
+
+2. **Encryption at Rest**
+    - *Rational:* Encryption of data at rest in the Cloud Map adds an extra layer of data protection by converting the data into a format that is unreadable without the decryption key.
+
+3. **Encryption in Transit**
+    - *Rational:* This secures your data from unauthorized access and man-in-the-middle attacks during transfer from one location to another. AWS Cloud Map data in-transit can be encrypted using Secure Socket Layer (SSL) or Transport Layer Security (TLS ).
+
+4. **Auditing with AWS CloudTrail**
+    - *Rational:* This provides visibility into user activity by recording actions taken in AWS Cloud Map. This helps to enable governance, compliance, operational audit, and risk audit of your AWS Cloud Map resource.
+
+5. **AWS Service Control Policies (SCP)**
+    - *Rational:* SCPs offer central control over the maximum available permissions for all accounts in your organization, enabling you to ensure your accounts stay within your organization’s access control guidelines.
+
+6. **AWS PrivateLink**
+    - *Rational:* This ensures your data is not exposed to the public internet. It provides private connectivity between AWS Cloud Map and your own Amazon VPC, which keeps traffic within Amazon network only.
+
+7. **AWS Cloud Map resource tagging**
+    - *Rational:* This allows you to categorize your AWS resources in different ways (by purpose, owner, environment, etc.) for cost allocation, governance, and security.
+
+8. **VPC Service Controls**
+    - *Rational:* By using VPC service controls, you can prevent data exfiltration from AWS Cloud Map.
+
+Each of these controls ensures secure access, encryption and operation of AWS Cloud Map in your environment, meeting best practices for information security and compliance. Configuration of these security settings should be based on your organization's security requirements and guidelines.

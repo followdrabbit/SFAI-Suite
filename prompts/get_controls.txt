@@ -1,13 +1,1 @@
-To ensure the highest level of protection for PRODUCT_NAME, what security settings should be included in the security baseline for this product? Please respond using the following model:
-
-{
-  "Product_Name": [
-    {
-      "Control": "Bucket Policies",
-      "Description": "Define restrictive bucket policies following the principle of least privilege, allowing access only to necessary entities."
-    }
-
-{RULES}
-- The Product_Name field: The name of the product wich theses controls are recommended.
-- The Control field: The name of the security control (e.g., "Bucket Policies", "In-Transit and At-Rest Encryption").
-- The Description field: A detailed description of the control, explaining what it does and why it's important for the security of Amazon S3.
+To ensure the highest level of protection for PRODUCT_NAME, what security settings should be included in the security baseline for this product? Please provide only the name of the control and da rational for this control
