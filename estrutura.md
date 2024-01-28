@@ -6,6 +6,10 @@ meu_projeto_openai/
 ├── src/                   # Código fonte do seu projeto
 │   ├── __init__.py        # Torna o diretório um pacote Python
 │   │
+│   ├── assistant/          # Módulo para manipular o assistant
+│   │   ├── __init__.py
+│   │   └── assistant.py
+│   │
 │   ├── baseline/          # Módulo para criar baselines de segurança
 │   │   ├── __init__.py
 │   │   └── baseline.py
