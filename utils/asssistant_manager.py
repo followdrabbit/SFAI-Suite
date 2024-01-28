@@ -22,7 +22,7 @@ class OpenAIAssistantManager:
             else:
                 # Print a message and delete the duplicate assistant.
                 print(f"Duplicate assistant found: {assistant.name} with ID {assistant.id} - Removing.")
-                # await self.delete_assistant(assistant.id)
+                await self.delete_assistant(assistant.id)
         return unique_assistants
 
     async def delete_assistant(self, assistant_id: str):
