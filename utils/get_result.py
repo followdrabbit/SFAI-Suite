@@ -36,8 +36,6 @@ def check_assistant_status(thread_id, run_id, assistant_id):
                     print(msg)
                     result_messages.append(msg)
 
-                openai.beta.assistants.delete(assistant_id)
-
                 return result_messages
             else:
                 print("In progress...")
