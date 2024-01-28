@@ -2,7 +2,6 @@ import openai
 import asyncio
 import time
 import os
-import json
 from dotenv import load_dotenv
 
 class OpenAIRunsManager:
