@@ -19,8 +19,7 @@ async def main():
     # Setup argparse for command line arguments
     parser = argparse.ArgumentParser(description='Calls controls_creator with technology and ticket parameters.')
     parser.add_argument('-tec', '--technology', type=str, required=True, help='The new technology name')
-    # Uncomment and adjust as needed
-    # parser.add_argument('-tic', '--ticket', type=str, required=True, help='The ticket associated with the change')
+    parser.add_argument('-tic', '--ticket', type=str, required=True, help='The ticket associated with the change')
     
     # Parse the provided arguments
     args = parser.parse_args()
@@ -40,7 +39,7 @@ async def main():
     #    return
 
     # Call the controls_creator function with the technology and the assistant ID
-    await create_baseline(technology=args.technology, api_key=api_key)
+    await create_baseline(technology=args.technology, api_key=api_key, ticket=args.ticket)
 
 if __name__ == "__main__":
     asyncio.run(main())
