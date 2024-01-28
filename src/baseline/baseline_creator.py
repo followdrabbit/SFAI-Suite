@@ -1,5 +1,4 @@
 import asyncio
-from utils.thread_creator import create_thread
 from utils.run import run_thread
 from utils.get_result import check_assistant_status
 from utils.thread_manager import OpenAIThreadManager

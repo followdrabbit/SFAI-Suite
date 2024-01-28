@@ -22,7 +22,7 @@ class OpenAIAssistantManager:
             else:
                 # Print a message and delete the duplicate assistant.
                 print(f"Duplicate assistant found: {assistant.name} with ID {assistant.id} - Removing.")
-                await self.delete_assistant(assistant.id)
+                # await self.delete_assistant(assistant.id)
         return unique_assistants
 
     async def delete_assistant(self, assistant_id: str):
@@ -39,26 +39,8 @@ class OpenAIAssistantManager:
                 model=model
             )
             print(f"Assistant created successfully: {assistant.id}")
-            # Save the new assistant's information.
-            self.save_assistant_info(assistant)
         except Exception as e:
             print(f"Error creating assistant: {e}")
-
-    def save_assistant_info(self, assistant):
-        # Define the file path for saving assistant configuration.
-        file_path = '../../config.json'
-        assistant_config = {assistant.name: assistant.id}
-        # Check if the config file exists and update or create it as necessary.
-        if os.path.isfile(file_path):
-            with open(file_path, 'r+') as file:
-                data = json.load(file)
-                data.update(assistant_config)
-                file.seek(0)
-                json.dump(data, file, indent=4)
-        else:
-            with open(file_path, 'w') as file:
-                json.dump(assistant_config, file, indent=4)
-        print(f"Assistant configuration saved in {file_path}")
 
     async def update_assistant(self, assistant_id: str, name: Optional[str] = None, 
                                description: Optional[str] = None,
@@ -115,12 +97,12 @@ async def main():
     manager = OpenAIAssistantManager(api_key)
 
     # Create a new assistant (example).
-    #await manager.create_assistant(
-    #    name="Cloud Security Expert",
-    #    instructions="An assistant specialized in cloud information security.",
-    #    tools=[{"type": "code_interpreter"}],
-    #    model="gpt-4"
-    #)
+   # await manager.create_assistant(
+   #     name="Cloud Security Expert",
+   #     instructions="An assistant specialized in cloud information security.",
+   #     tools=[{"type": "code_interpreter"}],
+   #     model="gpt-4"
+   # )
 
     # Update an assistant's name (example).
     # Replace 'assistant_id_here' with the actual assistant's ID.
