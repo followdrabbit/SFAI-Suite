@@ -25,7 +25,7 @@ async def create_and_process_run(thread_manager, runs_manager, technology, assis
     new_prompt = replace_text_in_file('prompts/get_controls.txt', PRODUCT_NAME_PLACEHOLDER, technology)
     await thread_manager.create_message(new_thread_id, new_prompt)
     run_id = await runs_manager.create_run(new_thread_id, assistant_id)
-    return await runs_manager.process_run(new_thread_id, run_id, ticket)
+    return await runs_manager.process_run(new_thread_id, run_id)
 
 # Function to save raw and structured results into separate files
 def save_results(result_raw, ticket):
