@@ -3,13 +3,14 @@ import asyncio  # Importing asyncio for asynchronous programming
 import os  # To interact with the operating system
 from typing import Optional  # To allow for optional type hints
 from dotenv import load_dotenv  # To load environment variables from a .env file
-
+import tiktoken  # Importing the tiktoken
 
 # Defining a class to manage OpenAI threads
 class OpenAIThreadManager:
     # Constructor for the class, initializes the OpenAI client with an API key
     def __init__(self, api_key):
         self.client = openai.AsyncClient(api_key=api_key)
+        self.encoder = tiktoken.encoding_for_model("gpt-4")  # Especificando o modelo GPT-4
 
     # Asynchronous method to create a new thread
     async def create_thread(self, messages: Optional[list] = None, metadata: Optional[dict] = None):
@@ -31,6 +32,8 @@ class OpenAIThreadManager:
 
     # Asynchronous method to create a message in a specific thread
     async def create_message(self, thread_id: str, content: str, role: str = "user"):
+        token_count = self.approximate_token_count(content)
+        print(f"Tokens used in message: {token_count}")
         return await self.client.beta.threads.messages.create(thread_id=thread_id, role=role, content=content)
 
     # Asynchronous method to retrieve a specific message from a thread
@@ -49,6 +52,13 @@ class OpenAIThreadManager:
         except Exception as e:
             print(f"An error occurred while retrieving messages: {e}")
             return None
+
+
+    def approximate_token_count(self, text):
+        tokens = self.encoder.encode(text)
+        token_count = len(tokens)
+        return token_count
+
 
 # Asynchronous main function demonstrating various operations with the thread manager
 async def main():
