@@ -1,16 +1,16 @@
 import openai
-import asyncio  # Importing asyncio for asynchronous programming
-import os  # To interact with the operating system
-from typing import Optional  # To allow for optional type hints
-from dotenv import load_dotenv  # To load environment variables from a .env file
-import tiktoken  # Importing the tiktoken
+import asyncio  # This module allows for asynchronous programming.
+import os  # This module is used to interact with the operating system.
+from typing import Optional  # This is used for optional type hints in function arguments.
+from dotenv import load_dotenv  # This module loads environment variables from a .env file.
+import tiktoken  # Importing the tiktoken module for tokenization.
 
 # Defining a class to manage OpenAI threads
 class OpenAIThreadManager:
     # Constructor for the class, initializes the OpenAI client with an API key
     def __init__(self, api_key):
-        self.client = openai.AsyncClient(api_key=api_key)
-        self.encoder = tiktoken.encoding_for_model("gpt-4")  # Especificando o modelo GPT-4
+        self.client = openai.AsyncClient(api_key=api_key)  # Setting up the asynchronous OpenAI client.
+        self.encoder = tiktoken.encoding_for_model("gpt-4")  # Setting up the tokenizer for GPT-4 model.
 
     # Asynchronous method to create a new thread
     async def create_thread(self, messages: Optional[list] = None, metadata: Optional[dict] = None):
@@ -30,11 +30,12 @@ class OpenAIThreadManager:
     async def delete_thread(self, thread_id: str):
         return await self.client.beta.threads.delete(thread_id)
 
-    # Asynchronous method to create a message in a specific thread
+    # Asynchronous method to create a message in a specific thread.
     async def create_message(self, thread_id: str, content: str, role: str = "user"):
-        token_count = self.approximate_token_count(content)
-        print(f"Tokens used in message: {token_count}")
+        token_count = self.approximate_token_count(content)  # Getting the token count for the message.
+        print(f"Tokens used in message: {token_count}")  # Printing the number of tokens used.
         return await self.client.beta.threads.messages.create(thread_id=thread_id, role=role, content=content)
+
 
     # Asynchronous method to retrieve a specific message from a thread
     async def retrieve_message(self, thread_id: str, message_id: str):
@@ -54,17 +55,18 @@ class OpenAIThreadManager:
             return None
 
 
+    # Function to approximate the token count of a given text.
+    # It uses the tiktoken encoder to tokenize the text and count the number of tokens.
     def approximate_token_count(self, text):
-        tokens = self.encoder.encode(text)
-        token_count = len(tokens)
+        tokens = self.encoder.encode(text)  # Encoding the text into tokens.
+        token_count = len(tokens)  # Counting the number of tokens.
         return token_count
 
 
 # Asynchronous main function demonstrating various operations with the thread manager
 async def main():
-    # Load API key from environment or .env file
-    load_dotenv()
-    api_key = os.getenv("OPENAI_API_KEY")
+    load_dotenv()  # Loading the API key from environment or .env file.
+    api_key = os.getenv("OPENAI_API_KEY")  # Getting the API key from the environment variables.
 
     # Create an instance of the thread manager
     thread_manager = OpenAIThreadManager(api_key)
@@ -111,4 +113,4 @@ async def main():
 
 # Run the main function if this file is executed as a script
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(main())  # Running the main function asynchronously.
