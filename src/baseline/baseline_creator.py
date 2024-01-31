@@ -88,9 +88,11 @@ async def create_baseline(technology, api_key, ticket):
 
     # Process audit for the extracted controls.
     audit_raw = await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_AUDIT_PROMPT, "audit")
-    print(audit_raw)  # Print the audit response
+    #audit_extracted = get_response(audit_raw)  # Extract audit from the raw response.
+    #print(audit_extracted)  # Print the extracted audit information
     print_separator()  # Calls the function to print a separator line of 120 '#' characters.
 
     # Process remediation for the extracted controls.
     remediation_raw = await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_REMEDIATION_PROMPT, "remediation")
-    print(remediation_raw)  # Print the remediation response
+    #remediation_extracted = get_response(remediation_raw)  # Extract audit from the raw response.
+    #print(remediation_extracted)  # Print the remediation audit information
