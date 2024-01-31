@@ -2,7 +2,7 @@ import asyncio
 import os
 import argparse
 from dotenv import load_dotenv
-from utils.asssistant_manager import OpenAIAssistantManager
+from utils.assistant_manager import OpenAIAssistantManager
 from src.baseline.baseline_creator import create_baseline
 
 async def main():

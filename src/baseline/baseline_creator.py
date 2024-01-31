@@ -1,73 +1,63 @@
-# Import necessary libraries
-import asyncio  # For asynchronous programming
-import datetime  # For handling date and time
-import json  # For JSON operations
-import os  # For operating system interactions, like file paths
-from utils.thread_manager import OpenAIThreadManager  # Custom module for managing threads
-from utils.text_replacer import replace_text_in_file  # Custom module for text replacement
-from utils.asssistant_manager import OpenAIAssistantManager  # Custom module for managing OpenAI assistants
-from utils.runs_manager import OpenAIRunsManager  # Custom module for managing OpenAI runs
+# Imports
+from utils.thread_manager import OpenAIThreadManager
+from utils.text_replacer import replace_text_in_file
+from utils.assistant_manager import OpenAIAssistantManager
+from utils.runs_manager import OpenAIRunsManager
 
-# Constants for easier reference and maintenance
+# Constants
 CLOUD_SECURITY_EXPERT = "Cloud Security Expert"
 PRODUCT_NAME_PLACEHOLDER = "PRODUCT_NAME"
+CONTROL_NAME_PLACEHOLDER = "CONTROL_NAME"
 DATA_RAW_DIR = "data/raw"
 DATA_STRUCTURED_DIR = "data/structured"
+GET_BASELINE_CONTROLS_PROMPT = 'prompts/get_baseline_controls.txt'
+GET_BASELINE_AUDIT_PROMPT = 'prompts/get_baseline_audit.txt'
+GET_BASELINE_REMEDIATION_PROMPT = 'prompts/get_baseline_remediation.txt'
 
-# Asynchronous function to find an assistant ID based on its name
 async def find_assistant_id(assistant_manager, name):
+    """Find assistant ID based on its name."""
     unique_assistants = await assistant_manager.list_assistants()
     return unique_assistants.get(name)
 
-# Asynchronous function to create and process a run for a specific technology
-async def create_run(thread_manager, thread_id, runs_manager, technology, assistant_id, prompt):
-    new_prompt = replace_text_in_file(prompt, PRODUCT_NAME_PLACEHOLDER, technology)
+async def create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, placeholder, replacement_text):
+    """Create and process a run for a specific placeholder replacement in a prompt."""
+    new_prompt = replace_text_in_file(prompt_file, placeholder, replacement_text)
     await thread_manager.create_message(thread_id, new_prompt)
     run_id = await runs_manager.create_run(thread_id, assistant_id)
     return await runs_manager.process_run(thread_id, run_id)
-
-
-# Asynchronous function to create and process a run for a specific technology
-async def process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt, CONTROL_NAME, control_description):
-    new_prompt = replace_text_in_file(prompt, CONTROL_NAME, control_description)
-    await thread_manager.create_message(thread_id, new_prompt)
-    run_id = await runs_manager.create_run(thread_id, assistant_id)
-    return await runs_manager.process_run(thread_id, run_id)
-
-# Function to save raw and structured results into separate files
-def save_results(result_raw, ticket):
-    current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    file_name_raw = os.path.join(DATA_RAW_DIR, f'{ticket}_controls_{current_time}_raw.txt')
-    file_name_structured = os.path.join(DATA_STRUCTURED_DIR, f'{ticket}_controls_{current_time}_structured.txt')
-
-    with open(file_name_raw, 'w', encoding='utf-8') as file:
-        json.dump(result_raw, file, ensure_ascii=False, indent=4)
-
-    assistant_message = next((item['message'] for item in result_raw if item['role'] == 'assistant'), None)
-    if assistant_message:
-        with open(file_name_structured, 'w', encoding='utf-8') as file:
-            file.write(assistant_message)
-
-    return file_name_raw, file_name_structured
-
 
 def get_response(result_raw):
-    extract_data = ""
-    raw_data = json.dumps(result_raw, ensure_ascii=False, indent=4)  # Alterado para json.dumps
+    """Extract assistant message from raw response."""
     assistant_message = next((item['message'] for item in result_raw if item['role'] == 'assistant'), None)
-    if assistant_message:
-        extract_data += assistant_message
+    return assistant_message or ""
 
-    return extract_data
+async def process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, prompt_file):
+    """Process each control block in the extracted controls."""
+    processed_data = []
+    current_control_block = []
 
-def extract_full_control_description(line):
-    # Separa o número do controle e o resto do texto
-    control_number, control_text = line.split('.', 1)
-    return control_text.strip()
+    for line in controls_extracted.strip().split('\n'):
+        if line.strip():
+            current_control_block.append(line.strip())
+        else:
+            if current_control_block:
+                control_description = ' '.join(current_control_block)
+                result = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, CONTROL_NAME_PLACEHOLDER, control_description)
+                processed_data.append(result)
+                current_control_block = []
+
+    if current_control_block:
+        control_description = ' '.join(current_control_block)
+        result = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, CONTROL_NAME_PLACEHOLDER, control_description)
+        processed_data.append(result)
+
+    return processed_data
 
 
-# Main asynchronous function to create a baseline using the specified technology, API key, and ticket
+    return processed_data
+
 async def create_baseline(technology, api_key, ticket):
+    """Main function to create a baseline using specified technology, API key, and ticket."""
     assistant_manager = OpenAIAssistantManager(api_key)
     assistant_id = await find_assistant_id(assistant_manager, CLOUD_SECURITY_EXPERT)
 
@@ -79,105 +69,16 @@ async def create_baseline(technology, api_key, ticket):
     runs_manager = OpenAIRunsManager(api_key)
 
     thread_id = await thread_manager.create_thread()
-    controls_raw = await create_run(thread_manager, thread_id, runs_manager, technology, assistant_id, 'prompts/get_baseline_controls.txt')
+    controls_raw = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, GET_BASELINE_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology)
     controls_extracted = get_response(controls_raw)
-    print (controls_extracted)
 
-    print("")
-    print ("############################################################################################################")
-    print("")
+    print(controls_extracted)
+    print("\n" + "#" * 120 + "\n")
 
-    audit_raw = []  # Supondo que seja uma lista
+    audit_raw = await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_AUDIT_PROMPT)
+    remediation_raw = await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_REMEDIATION_PROMPT)
 
-
-    # Variável para armazenar o bloco atual de descrição de controle
-    current_control_block = []
-
-    for line in controls_extracted.strip().split('\n'):
-        if line.strip():
-            # Adiciona a linha atual ao bloco de controle atual
-            current_control_block.append(line.strip())
-        else:
-            # Verifica se há um bloco de controle para processar
-            if current_control_block:
-                # Junta todas as linhas do bloco de controle em uma única descrição
-                control_description = ' '.join(current_control_block)
-
-                print(f"Obtendo o campo audit para o controle: {control_description}")
-
-                # Chame a função process_run com a descrição completa do controle
-                result = await process_run(thread_manager, thread_id, runs_manager, assistant_id, 'prompts/get_baseline_audit.txt', "CONTROL_NAME", control_description)
-                audit_raw.append(result)
-                # Resto do seu código...
-
-            # Reseta o bloco de controle para o próximo
-            current_control_block = []
-
-    # Verifica se há um último bloco de controle após o loop
-    if current_control_block:
-        control_description = ' '.join(current_control_block)
-
-        print(f"Obtendo o campo audit para o controle: {control_description}")
-        # Chame a função process_run com a descrição completa do controle
-        result = await process_run(thread_manager, thread_id, runs_manager, assistant_id, 'prompts/get_baseline_audit.txt', "CONTROL_NAME", control_description)
-        audit_raw.append(result)
-
-
-    # Processar audit_raw como necessário
-    # Por exemplo, se você quer extrair uma resposta de cada resultado:
-    for result in audit_raw:
-        audit_extracted = get_response(result)
-        print("")
-        print ("############################################################################################################")
-        print("")
-        print(audit_extracted)
-
-    print("")
-    print ("############################################################################################################")
-    print("")
-
-
-
-    remediation_raw = []  # Supondo que seja uma lista
-
-
-    # Variável para armazenar o bloco atual de descrição de controle
-    current_control_block = []
-
-    for line in controls_extracted.strip().split('\n'):
-        if line.strip():
-            # Adiciona a linha atual ao bloco de controle atual
-            current_control_block.append(line.strip())
-        else:
-            # Verifica se há um bloco de controle para processar
-            if current_control_block:
-                # Junta todas as linhas do bloco de controle em uma única descrição
-                control_description = ' '.join(current_control_block)
-
-                print(f"Obtendo o campo remediation para o controle: {control_description}")
-
-                # Chame a função process_run com a descrição completa do controle
-                result = await process_run(thread_manager, thread_id, runs_manager, assistant_id, 'prompts/get_baseline_remediation.txt', "CONTROL_NAME", control_description)
-                remediation_raw.append(result)
-
-            # Reseta o bloco de controle para o próximo
-            current_control_block = []
-
-    # Verifica se há um último bloco de controle após o loop
-    if current_control_block:
-        control_description = ' '.join(current_control_block)
-
-        print(f"Obtendo o campo remediation para o controle: {control_description}")
-        # Chame a função process_run com a descrição completa do controle
-        result = await process_run(thread_manager, thread_id, runs_manager, assistant_id, 'prompts/get_baseline_remediation.txt', "CONTROL_NAME", control_description)
-        remediation_raw.append(result)
-
-
-    # Processar audit_raw como necessário
-    # Por exemplo, se você quer extrair uma resposta de cada resultado:
-    for result in remediation_raw:
-        audit_extracted = get_response(result)
-        print("")
-        print ("############################################################################################################")
-        print("")
-        print(audit_extracted)
+    for result in audit_raw + remediation_raw:
+        extracted_data = get_response(result)
+        print(extracted_data)
+        print("\n" + "#" * 120 + "\n")
