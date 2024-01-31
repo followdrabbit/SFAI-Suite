@@ -26,7 +26,7 @@ async def create_and_process_run(thread_manager, thread_id, runs_manager, assist
     run_id = await runs_manager.create_run(thread_id, assistant_id)  # Create a run with the thread ID and assistant ID.
     return await runs_manager.process_run(thread_id, run_id)  # Process the run and return the result.
 
-def get_response(result_raw):
+def extract_response(result_raw):
     """Extract assistant message from raw response."""
     assistant_message = next((item['message'] for item in result_raw if item['role'] == 'assistant'), None)  # Find the assistant's message.
     return assistant_message or ""  # Return the assistant's message or an empty string if not found.
@@ -80,7 +80,7 @@ async def create_baseline(technology, api_key, ticket):
 
     thread_id = await thread_manager.create_thread()  # Create a new thread.
     controls_raw = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, GET_BASELINE_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology)
-    controls_extracted = get_response(controls_raw)  # Extract controls from the raw response.
+    controls_extracted = extract_response(controls_raw)  # Extract controls from the raw response.
 
     print(controls_extracted)  # Print the extracted controls information.
     print_separator()  # Calls the function to print a separator line of 120 '#' characters.
@@ -88,11 +88,11 @@ async def create_baseline(technology, api_key, ticket):
 
     # Process audit for the extracted controls.
     audit_raw = await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_AUDIT_PROMPT, "audit")
-    #audit_extracted = get_response(audit_raw)  # Extract audit from the raw response.
-    #print(audit_extracted)  # Print the extracted audit information
+    audit_extracted = extract_response(audit_raw)  # Extract audit from the raw response.
+    print(audit_extracted)  # Print the extracted audit information
     print_separator()  # Calls the function to print a separator line of 120 '#' characters.
 
     # Process remediation for the extracted controls.
     remediation_raw = await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_REMEDIATION_PROMPT, "remediation")
-    #remediation_extracted = get_response(remediation_raw)  # Extract audit from the raw response.
-    #print(remediation_extracted)  # Print the remediation audit information
+    remediation_extracted = extract_response(remediation_raw)  # Extract audit from the raw response.
+    print(remediation_extracted)  # Print the remediation audit information
