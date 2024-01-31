@@ -1,0 +1,11 @@
+Please provide a comprehensive list of recommended controls for ensuring the security of Amazon S3. I am interested in understanding all the security measures and best practices that can be implemented to protect data stored in S3 against risks such as unauthorized access, data loss, cyber attacks, and compliance failures.
+
+RULES:
+- List each recommended control along with a brief description or rationale for its inclusion.
+- Organize the response in a list format for ease of reading and understanding.
+- Ensure that the information is complete and comprehensive, covering different aspects of S3 security.
+
+Example of response:
+1. CONTROL: Description/Rationale
+2. CONTROL: Description/Rationale
+...
