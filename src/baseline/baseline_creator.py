@@ -31,7 +31,7 @@ def get_response(result_raw):
     assistant_message = next((item['message'] for item in result_raw if item['role'] == 'assistant'), None)  # Find the assistant's message.
     return assistant_message or ""  # Return the assistant's message or an empty string if not found.
 
-async def process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, prompt_file):
+async def process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, prompt_file, process):
     """Process each control block in the extracted controls. This is an asynchronous function."""
     processed_data = []  # List to store processed data.
     current_control_block = []  # Temporary storage for the current control block.
@@ -44,6 +44,7 @@ async def process_control_block(thread_manager, thread_id, runs_manager, assista
             # Process the current control block if it's not empty.
             if current_control_block:
                 control_description = ' '.join(current_control_block)  # Join all lines in the control block.
+                print(f"Getting {process} for block: {control_description}")  # Print the current control description.
                 result = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, CONTROL_NAME_PLACEHOLDER, control_description)
                 processed_data.append(result)  # Append the result to processed data.
                 current_control_block = []  # Reset the current control block.
@@ -51,10 +52,18 @@ async def process_control_block(thread_manager, thread_id, runs_manager, assista
     # Process the last control block if it's not empty.
     if current_control_block:
         control_description = ' '.join(current_control_block)
+        print(f"Getting {process} for block: {control_description}")  # Print the current control description.
         result = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, CONTROL_NAME_PLACEHOLDER, control_description)
         processed_data.append(result)
 
     return processed_data
+
+def print_separator():
+    """
+    Prints a separator line consisting of 120 hash (#) characters.
+    """
+    print("\n" + "#" * 120 + "\n")
+
 
 async def create_baseline(technology, api_key, ticket):
     """Main function to create a baseline using specified technology, API key, and ticket. This is an asynchronous function."""
@@ -74,15 +83,14 @@ async def create_baseline(technology, api_key, ticket):
     controls_extracted = get_response(controls_raw)  # Extract controls from the raw response.
 
     print(controls_extracted)  # Print the extracted controls information.
-    print("\n" + "#" * 120 + "\n")  # Print a separator line consisting of 120 hash (#) characters for visual separation in the output.
+    print_separator()  # Calls the function to print a separator line of 120 '#' characters.
 
 
-    # Process audit and remediation for the extracted controls.
-    audit_raw = await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_AUDIT_PROMPT)
-    remediation_raw = await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_REMEDIATION_PROMPT)
+    # Process audit for the extracted controls.
+    audit_raw = await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_AUDIT_PROMPT, "audit")
+    print(audit_raw)  # Print the audit response
+    print_separator()  # Calls the function to print a separator line of 120 '#' characters.
 
-    # Print the results of the audit and remediation processes.
-    for result in audit_raw + remediation_raw:
-        extracted_data = get_response(result)
-        print(extracted_data)
-        print("\n" + "#" * 120 + "\n")
+    # Process remediation for the extracted controls.
+    remediation_raw = await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_REMEDIATION_PROMPT, "remediation")
+    print(remediation_raw)  # Print the remediation response
