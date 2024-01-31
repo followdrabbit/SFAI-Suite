@@ -20,12 +20,19 @@ async def find_assistant_id(assistant_manager, name):
     return unique_assistants.get(name)
 
 # Asynchronous function to create and process a run for a specific technology
-async def create_and_process_run(thread_manager, runs_manager, technology, assistant_id, ticket):
-    new_thread_id = await thread_manager.create_thread()
-    new_prompt = replace_text_in_file('prompts/get_controls.txt', PRODUCT_NAME_PLACEHOLDER, technology)
-    await thread_manager.create_message(new_thread_id, new_prompt)
-    run_id = await runs_manager.create_run(new_thread_id, assistant_id)
-    return await runs_manager.process_run(new_thread_id, run_id)
+async def create_run(thread_manager, thread_id, runs_manager, technology, assistant_id, prompt):
+    new_prompt = replace_text_in_file(prompt, PRODUCT_NAME_PLACEHOLDER, technology)
+    await thread_manager.create_message(thread_id, new_prompt)
+    run_id = await runs_manager.create_run(thread_id, assistant_id)
+    return await runs_manager.process_run(thread_id, run_id)
+
+
+# Asynchronous function to create and process a run for a specific technology
+async def process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt, CONTROL_NAME, control_description):
+    new_prompt = replace_text_in_file(prompt, CONTROL_NAME, control_description)
+    await thread_manager.create_message(thread_id, new_prompt)
+    run_id = await runs_manager.create_run(thread_id, assistant_id)
+    return await runs_manager.process_run(thread_id, run_id)
 
 # Function to save raw and structured results into separate files
 def save_results(result_raw, ticket):
@@ -43,6 +50,22 @@ def save_results(result_raw, ticket):
 
     return file_name_raw, file_name_structured
 
+
+def get_response(result_raw):
+    extract_data = ""
+    raw_data = json.dumps(result_raw, ensure_ascii=False, indent=4)  # Alterado para json.dumps
+    assistant_message = next((item['message'] for item in result_raw if item['role'] == 'assistant'), None)
+    if assistant_message:
+        extract_data += assistant_message
+
+    return extract_data
+
+def extract_full_control_description(line):
+    # Separa o número do controle e o resto do texto
+    control_number, control_text = line.split('.', 1)
+    return control_text.strip()
+
+
 # Main asynchronous function to create a baseline using the specified technology, API key, and ticket
 async def create_baseline(technology, api_key, ticket):
     assistant_manager = OpenAIAssistantManager(api_key)
@@ -55,8 +78,75 @@ async def create_baseline(technology, api_key, ticket):
     thread_manager = OpenAIThreadManager(api_key)
     runs_manager = OpenAIRunsManager(api_key)
 
-    result_raw = await create_and_process_run(thread_manager, runs_manager, technology, assistant_id, ticket)
+    thread_id = await thread_manager.create_thread()
+    controls_raw = await create_run(thread_manager, thread_id, runs_manager, technology, assistant_id, 'prompts/get_baseline_controls.txt')
+    controls_extracted = get_response(controls_raw)
+    print (controls_extracted)
 
-    file_name_raw, file_name_structured = save_results(result_raw, ticket)
-    print(f"Complete message saved in: {file_name_raw}")
-    print(f"Assistant's message saved in: {file_name_structured}")
+    print("")
+    print ("############################################################################################################")
+    print("")
+
+    audit_raw = []  # Supondo que seja uma lista
+
+
+    # Variável para armazenar o bloco atual de descrição de controle
+    current_control_block = []
+
+    for line in controls_extracted.strip().split('\n'):
+        if line.strip():
+            # Adiciona a linha atual ao bloco de controle atual
+            current_control_block.append(line.strip())
+        else:
+            # Verifica se há um bloco de controle para processar
+            if current_control_block:
+                # Junta todas as linhas do bloco de controle em uma única descrição
+                control_description = ' '.join(current_control_block)
+
+                print(f"Processando controle: {control_description}")
+
+                # Chame a função process_run com a descrição completa do controle
+                result = await process_run(thread_manager, thread_id, runs_manager, assistant_id, 'prompts/get_baseline_audit.txt', "CONTROL_NAME", control_description)
+                audit_raw.append(result)
+                # Resto do seu código...
+
+            # Reseta o bloco de controle para o próximo
+            current_control_block = []
+
+    # Verifica se há um último bloco de controle após o loop
+    if current_control_block:
+        control_description = ' '.join(current_control_block)
+
+        print(f"Processando controle: {control_description}")
+        # Chame a função process_run com a descrição completa do controle
+        result = await process_run(thread_manager, thread_id, runs_manager, assistant_id, 'prompts/get_baseline_audit.txt', "CONTROL_NAME", control_description)
+        audit_raw.append(result)
+
+        
+
+    # # Dividindo o texto em linhas e processando cada linha
+    # for line in controls_extracted.strip().split('\n'):
+    #     if line.strip():  # Verificando se a linha não está vazia
+    #         control_description = line.split(': ', 1)[1] if ': ' in line else line
+    #         print(f"Processando controle: {control_description}")
+
+    #         # Agora estamos adicionando o resultado a uma lista
+    #         result = await process_run(thread_manager, thread_id, runs_manager, assistant_id, 'prompts/get_baseline_audit.txt', "CONTROL_NAME", control_description)
+    #         audit_raw.append(result)
+
+    # Processar audit_raw como necessário
+    # Por exemplo, se você quer extrair uma resposta de cada resultado:
+    for result in audit_raw:
+        audit_extracted = get_response(result)
+        print("")
+        print ("############################################################################################################")
+        print("")
+        print(audit_extracted)
+
+    #file_name_raw, file_name_structured = save_results(controls_raw, ticket)
+    #print(f"Complete message saved in: {file_name_raw}")
+    #print(f"Assistant's message saved in: {file_name_structured}")
+
+
+
+   #result_raw = await create_and_process_run(thread_manager, runs_manager, technology, assistant_id, ticket)
