@@ -1,1 +1,1 @@
-And how do I check if " CONTROL_NAME " have been applied in AWS?
+And how do I check if " CONTROL_NAME " have been applied ?

@@ -103,7 +103,7 @@ async def create_baseline(technology, api_key, ticket):
                 # Junta todas as linhas do bloco de controle em uma única descrição
                 control_description = ' '.join(current_control_block)
 
-                print(f"Processando controle: {control_description}")
+                print(f"Obtendo o campo audit para o controle: {control_description}")
 
                 # Chame a função process_run com a descrição completa do controle
                 result = await process_run(thread_manager, thread_id, runs_manager, assistant_id, 'prompts/get_baseline_audit.txt', "CONTROL_NAME", control_description)
@@ -117,22 +117,11 @@ async def create_baseline(technology, api_key, ticket):
     if current_control_block:
         control_description = ' '.join(current_control_block)
 
-        print(f"Processando controle: {control_description}")
+        print(f"Obtendo o campo audit para o controle: {control_description}")
         # Chame a função process_run com a descrição completa do controle
         result = await process_run(thread_manager, thread_id, runs_manager, assistant_id, 'prompts/get_baseline_audit.txt', "CONTROL_NAME", control_description)
         audit_raw.append(result)
 
-        
-
-    # # Dividindo o texto em linhas e processando cada linha
-    # for line in controls_extracted.strip().split('\n'):
-    #     if line.strip():  # Verificando se a linha não está vazia
-    #         control_description = line.split(': ', 1)[1] if ': ' in line else line
-    #         print(f"Processando controle: {control_description}")
-
-    #         # Agora estamos adicionando o resultado a uma lista
-    #         result = await process_run(thread_manager, thread_id, runs_manager, assistant_id, 'prompts/get_baseline_audit.txt', "CONTROL_NAME", control_description)
-    #         audit_raw.append(result)
 
     # Processar audit_raw como necessário
     # Por exemplo, se você quer extrair uma resposta de cada resultado:
@@ -143,10 +132,52 @@ async def create_baseline(technology, api_key, ticket):
         print("")
         print(audit_extracted)
 
-    #file_name_raw, file_name_structured = save_results(controls_raw, ticket)
-    #print(f"Complete message saved in: {file_name_raw}")
-    #print(f"Assistant's message saved in: {file_name_structured}")
+    print("")
+    print ("############################################################################################################")
+    print("")
 
 
 
-   #result_raw = await create_and_process_run(thread_manager, runs_manager, technology, assistant_id, ticket)
+    remediation_raw = []  # Supondo que seja uma lista
+
+
+    # Variável para armazenar o bloco atual de descrição de controle
+    current_control_block = []
+
+    for line in controls_extracted.strip().split('\n'):
+        if line.strip():
+            # Adiciona a linha atual ao bloco de controle atual
+            current_control_block.append(line.strip())
+        else:
+            # Verifica se há um bloco de controle para processar
+            if current_control_block:
+                # Junta todas as linhas do bloco de controle em uma única descrição
+                control_description = ' '.join(current_control_block)
+
+                print(f"Obtendo o campo remediation para o controle: {control_description}")
+
+                # Chame a função process_run com a descrição completa do controle
+                result = await process_run(thread_manager, thread_id, runs_manager, assistant_id, 'prompts/get_baseline_remediation.txt', "CONTROL_NAME", control_description)
+                remediation_raw.append(result)
+
+            # Reseta o bloco de controle para o próximo
+            current_control_block = []
+
+    # Verifica se há um último bloco de controle após o loop
+    if current_control_block:
+        control_description = ' '.join(current_control_block)
+
+        print(f"Obtendo o campo remediation para o controle: {control_description}")
+        # Chame a função process_run com a descrição completa do controle
+        result = await process_run(thread_manager, thread_id, runs_manager, assistant_id, 'prompts/get_baseline_remediation.txt', "CONTROL_NAME", control_description)
+        remediation_raw.append(result)
+
+
+    # Processar audit_raw como necessário
+    # Por exemplo, se você quer extrair uma resposta de cada resultado:
+    for result in remediation_raw:
+        audit_extracted = get_response(result)
+        print("")
+        print ("############################################################################################################")
+        print("")
+        print(audit_extracted)
