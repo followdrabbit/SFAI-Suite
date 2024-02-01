@@ -22,48 +22,77 @@ async def find_assistant_id(assistant_manager, name):
 async def create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, placeholder, replacement_text):
     """Create and process a run for a specific placeholder replacement in a prompt. This is an asynchronous function."""
     new_prompt = replace_text_in_file(prompt_file, placeholder, replacement_text)  # Replace placeholder in prompt file.
+    print("Getting controls")
     await thread_manager.create_message(thread_id, new_prompt)  # Create a message in the thread.
     run_id = await runs_manager.create_run(thread_id, assistant_id)  # Create a run with the thread ID and assistant ID.
     return await runs_manager.process_run(thread_id, run_id)  # Process the run and return the result.
 
 def extract_response(result_raw):
-    """Extract assistant message from raw response."""
-    assistant_message = next((item['message'] for item in result_raw if item['role'] == 'assistant'), None)  # Find the assistant's message.
-    return assistant_message or ""  # Return the assistant's message or an empty string if not found.
+    """
+    Extract assistant messages from the raw response.
+
+    Args:
+    result_raw (list): A list or a list of lists containing dictionaries with 'role' and 'message' keys.
+
+    Returns:
+    str: A concatenated string of all assistant messages.
+    """
+    messages = []
+
+    try:
+        # Check if result_raw is a list of lists or a simple list
+        if result_raw and isinstance(result_raw[0], list):
+            # It's a list of lists: iterate over each sublist
+            for sublist in result_raw:
+                # Iterate over each item (dictionary) in the sublist
+                for item in sublist:
+                    # Check if the item is a dictionary and the role is 'assistant'
+                    if isinstance(item, dict) and item.get('role') == 'assistant':
+                        # Append the message of the assistant to the messages list
+                        messages.append(item.get('message', ''))
+        else:
+            # It's a simple list: iterate directly over result_raw
+            for item in result_raw:
+                # Check if the item is a dictionary and the role is 'assistant'
+                if isinstance(item, dict) and item.get('role') == 'assistant':
+                    # Append the message of the assistant to the messages list
+                    messages.append(item.get('message', ''))
+
+    except Exception as e:
+        # Print an error message if an exception occurs
+        print(f"An error occurred while processing the response: {e}")
+        # Optional: Return an error message or an empty list depending on how you want to handle errors
+        # return "Error processing response"
+        # or
+        # return []
+
+    # Join all messages in the list into a single string separated by spaces
+    return " ".join(messages)
 
 async def process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, prompt_file, process):
     """Process each control block in the extracted controls. This is an asynchronous function."""
     processed_data = []  # List to store processed data.
     current_control_block = []  # Temporary storage for the current control block.
+    last_processed_block = None  # Store the last processed block for comparison.
 
     # Loop through each line in the extracted controls.
     for line in controls_extracted.strip().split('\n'):
         if line.strip():  # If the line is not empty.
             current_control_block.append(line.strip())  # Add the line to the current control block.
         else:
-            # Process the current control block if it's not empty.
-            if current_control_block:
+            # Process the current control block if it's not empty and not a repeat of the last block.
+            if current_control_block and current_control_block != last_processed_block:
                 control_description = ' '.join(current_control_block)  # Join all lines in the control block.
                 print(f"Getting {process} for block: {control_description}")  # Print the current control description.
                 result = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, CONTROL_NAME_PLACEHOLDER, control_description)
-                processed_data.append(result)  # Append the result to processed data.
+                last_processed_block = current_control_block.copy()  # Update the last processed block.
                 current_control_block = []  # Reset the current control block.
 
-    # Process the last control block if it's not empty.
-    if current_control_block:
+    # Process the last control block if it's not empty and not a repeat of the last block.
+    if current_control_block and current_control_block != last_processed_block:
         control_description = ' '.join(current_control_block)
         print(f"Getting {process} for block: {control_description}")  # Print the current control description.
         result = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, CONTROL_NAME_PLACEHOLDER, control_description)
-        processed_data.append(result)
-
-    return processed_data
-
-def print_separator():
-    """
-    Prints a separator line consisting of 120 hash (#) characters.
-    """
-    print("\n" + "#" * 120 + "\n")
-
 
 async def create_baseline(technology, api_key, ticket):
     """Main function to create a baseline using specified technology, API key, and ticket. This is an asynchronous function."""
@@ -82,17 +111,15 @@ async def create_baseline(technology, api_key, ticket):
     controls_raw = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, GET_BASELINE_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology)
     controls_extracted = extract_response(controls_raw)  # Extract controls from the raw response.
 
-    print(controls_extracted)  # Print the extracted controls information.
-    print_separator()  # Calls the function to print a separator line of 120 '#' characters.
-
-
     # Process audit for the extracted controls.
-    audit_raw = await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_AUDIT_PROMPT, "audit")
-    audit_extracted = extract_response(audit_raw)  # Extract audit from the raw response.
-    print(audit_extracted)  # Print the extracted audit information
-    print_separator()  # Calls the function to print a separator line of 120 '#' characters.
-
+    await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_AUDIT_PROMPT, "audit")
     # Process remediation for the extracted controls.
-    remediation_raw = await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_REMEDIATION_PROMPT, "remediation")
-    remediation_extracted = extract_response(remediation_raw)  # Extract audit from the raw response.
-    print(remediation_extracted)  # Print the remediation audit information
+    await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_REMEDIATION_PROMPT, "remediation")
+
+
+    response = await thread_manager.list_messages(thread_id)
+    for message in reversed(response.data):
+        print(message.content[0].text.value)
+        print()
+        print()
+
