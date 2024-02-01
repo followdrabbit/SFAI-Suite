@@ -1,11 +1,13 @@
-I am developing a security baseline for PRODUCT_NAME and need to identify the two most important controls to include. Considering the risks associated with cloud storage, such as unauthorized access, data compromise, and service disruptions, please provide the three key protection controls.
+I am developing a security baseline for PRODUCT_NAME and need to identify the three most important controls to include. Considering the risks associated with cloud storage, such as unauthorized access, data compromise, and service disruptions, please provide the three key protection controls.
 
 RULES:
+- Answer only in this format: "CONTROL: RATIONALE".
+- Do not send any other messages like "Ok i will provide..." or "Sure, here are the..."
 - Provide only the name of the control and the rationale for this control.
-- Answer using this format: "CONTROL: RATIONALE".
 - The control and rationale must be in the same paragraph.
 - Do not provide answers that are not directly related to the control and its rationale.
 
 Example of response:
 1. CONTROL: RATIONALE
 2. CONTROL: RATIONALE
+3. CONTROL: RATIONALE
