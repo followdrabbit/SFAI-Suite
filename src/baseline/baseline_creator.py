@@ -11,8 +11,7 @@ CONTROL_NAME_PLACEHOLDER = "CONTROL_NAME"  # Placeholder for control name in pro
 DATA_RAW_DIR = "data/raw"  # Directory path for raw data.
 DATA_STRUCTURED_DIR = "data/structured"  # Directory path for structured data.
 GET_BASELINE_CONTROLS_PROMPT = 'prompts/get_baseline_controls.txt'  # File path for baseline controls prompt.
-GET_BASELINE_AUDIT_PROMPT = 'prompts/get_baseline_audit.txt'  # File path for baseline audit prompt.
-GET_BASELINE_REMEDIATION_PROMPT = 'prompts/get_baseline_remediation.txt'  # File path for baseline remediation prompt.
+
 
 async def find_assistant_id(assistant_manager, name):
     """Find assistant ID based on its name. This is an asynchronous function."""
@@ -69,30 +68,60 @@ def extract_response(result_raw):
     # Join all messages in the list into a single string separated by spaces
     return " ".join(messages)
 
-async def process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, prompt_file, process):
-    """Process each control block in the extracted controls. This is an asynchronous function."""
-    processed_data = []  # List to store processed data.
-    current_control_block = []  # Temporary storage for the current control block.
-    last_processed_block = None  # Store the last processed block for comparison.
+async def process_control_blocks(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted):
+    all_controls = {}
+    prompt_files = ['prompts/get_baseline_audit.txt', 'prompts/get_baseline_remediation.txt']
+    for prompt_file in prompt_files:  # Itera sobre a lista de valores prompt_file
+        # Define o valor de 'process' com base em 'prompt_file'
+        if prompt_file == 'prompts/get_baseline_audit.txt':
+            process = 'Audit'
+        elif prompt_file == 'prompts/get_baseline_remediation.txt':
+            process = 'Remediation'
+        controls = {}
+        control_counter = 1
+        current_control_block = []
+        last_processed_block = None
 
-    # Loop through each line in the extracted controls.
-    for line in controls_extracted.strip().split('\n'):
-        if line.strip():  # If the line is not empty.
-            current_control_block.append(line.strip())  # Add the line to the current control block.
-        else:
-            # Process the current control block if it's not empty and not a repeat of the last block.
-            if current_control_block and current_control_block != last_processed_block:
-                control_description = ' '.join(current_control_block)  # Join all lines in the control block.
-                print(f"Getting {process} for block: {control_description}")  # Print the current control description.
-                result = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, CONTROL_NAME_PLACEHOLDER, control_description)
-                last_processed_block = current_control_block.copy()  # Update the last processed block.
-                current_control_block = []  # Reset the current control block.
+        for line in controls_extracted.strip().split('\n'):
+            if line.strip():
+                current_control_block.append(line.strip())
+            else:
+                if current_control_block and current_control_block != last_processed_block:
+                    control_description = ' '.join(current_control_block)
+                    print(f"Getting {process} for block: {control_description}")
+                    control_key = f"Control{control_counter}"
+                    controls[control_key] = {
+                        "Description": control_description,
+                    }
+                    response = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, CONTROL_NAME_PLACEHOLDER, control_description)
+                    result = next((item['message'] for item in response if item['role'] == 'assistant' and 'message' in item), None)
+                    if result:
+                        print(result)
+                        controls[control_key][process] = result
+                        control_counter += 1
+                    last_processed_block = current_control_block.copy()
+                    current_control_block = []
 
-    # Process the last control block if it's not empty and not a repeat of the last block.
-    if current_control_block and current_control_block != last_processed_block:
-        control_description = ' '.join(current_control_block)
-        print(f"Getting {process} for block: {control_description}")  # Print the current control description.
-        result = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, CONTROL_NAME_PLACEHOLDER, control_description)
+        if current_control_block and current_control_block != last_processed_block:
+            control_description = ' '.join(current_control_block)
+            print(f"Getting {process} for block: {control_description}")
+            response = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, CONTROL_NAME_PLACEHOLDER, control_description)
+            result = next((item['message'] for item in response if item['role'] == 'assistant' and 'message' in item), None)
+            if result:
+                print(result)
+                control_key = f"Control{control_counter}"
+                controls[control_key] = {
+                    "Description": control_description,
+                }
+                controls[control_key][process] = result
+                control_counter += 1
+
+        all_controls[prompt_file] = controls  # Armazena os controles para cada prompt_file
+
+    return all_controls
+
+
+
 
 async def create_baseline(technology, api_key, ticket):
     """Main function to create a baseline using specified technology, API key, and ticket. This is an asynchronous function."""
@@ -112,14 +141,20 @@ async def create_baseline(technology, api_key, ticket):
     controls_extracted = extract_response(controls_raw)  # Extract controls from the raw response.
 
     # Process audit for the extracted controls.
-    await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_AUDIT_PROMPT, "audit")
+    #Teste = await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_AUDIT_PROMPT, "audit")
+    # Para usar a função modificada:
+    Teste = await process_control_blocks(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted)
+    print("#####################################################################")
+    print("#####################################################################")
+    print("#####################################################################")
+    print(Teste)
     # Process remediation for the extracted controls.
-    await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_REMEDIATION_PROMPT, "remediation")
+    #Teste = await process_control_block(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted, GET_BASELINE_REMEDIATION_PROMPT, "remediation")
 
 
-    response = await thread_manager.list_messages(thread_id)
-    for message in reversed(response.data):
-        print(message.content[0].text.value)
-        print()
-        print()
+    # response = await thread_manager.list_messages(thread_id)
+    # for message in reversed(response.data):
+    #     print(message.content[0].text.value)
+    #     print()
+    #     print()
 
