@@ -100,7 +100,7 @@ async def main():
         name="Cloud Security Expert",
         instructions="An assistant specialized in cloud information security.",
         tools=[{"type": "code_interpreter"}],
-        model="gpt-4"
+        model="gpt-3.5-turbo-16k"
     )
 
     # Update an assistant's name (example).
