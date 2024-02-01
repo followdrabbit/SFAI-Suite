@@ -63,6 +63,14 @@ async def main():
     # result_messages = await run_manager.process_run('your_thread_id', run_id, 'your_ticket')
     # print(result_messages)
 
+    # Suponha que você já tenha um thread_id e run_id válidos
+    #thread_id = "seu_thread_id"
+    #run_id = "seu_run_id"
+    
+    # Utilizando a função retrieve_run
+    #run_info = await run_manager.retrieve_run(thread_id, run_id)
+    #print(run_info)
+
 # Entry point of the script
 if __name__ == "__main__":
     asyncio.run(main())  # Execute the main function asynchronously
