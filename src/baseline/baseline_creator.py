@@ -1,6 +1,7 @@
 # Imports corrigidos conforme os nomes fornecidos originalmente
 import json
 import os
+from datetime import datetime
 from utils.thread_manager import OpenAIThreadManager
 from utils.assistant_manager import OpenAIAssistantManager
 from utils.runs_manager import OpenAIRunsManager
@@ -16,6 +17,7 @@ GET_BASELINE_CONTROLS_PROMPT = 'prompts/get_baseline_controls.txt'
 BASELINE_AUDIT_PROMPT = 'prompts/get_baseline_audit.txt'
 BASELINE_REMEDIATION_PROMPT = 'prompts/get_baseline_remediation.txt'
 BASELINE_REFERENCE_PROMPT = 'prompts/get_baseline_reference.txt'
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
 async def find_assistant_id(assistant_manager, name):
     """Returns the ID of an assistant by name."""
@@ -72,7 +74,7 @@ async def process_control_blocks(thread_manager, thread_id, runs_manager, assist
         all_controls[process] = controls
     return all_controls
 
-def save_data(data, ticket, base_dir="data/raw/baseline"):
+def save_data(data, ticket, technology, base_dir="data/raw/baseline"):
     """
     Tenta salvar os dados em um arquivo JSON no diretório especificado.
     Verifica se o arquivo foi salvo com sucesso e lida com possíveis erros.
@@ -85,7 +87,7 @@ def save_data(data, ticket, base_dir="data/raw/baseline"):
     try:
         
         # Define o caminho completo do arquivo
-        file_path = os.path.join(base_dir, f"{ticket}.json")
+        file_path = os.path.join(base_dir, f"{ticket}_{technology}_{timestamp}.json")
         
         # Salva os dados no arquivo JSON
         with open(file_path, 'w', encoding='utf-8') as file:
@@ -122,4 +124,4 @@ async def create_baseline(technology, api_key, ticket):
     processed_controls = await process_control_blocks(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted)
     print(processed_controls)
 
-    save_data(processed_controls, ticket)
+    save_data(processed_controls, ticket, technology)
