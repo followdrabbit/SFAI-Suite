@@ -1,0 +1,11 @@
+I am in the process of crafting a security baseline tailored for PRODUCT_NAME, with a focus on mitigating the inherent risks of cloud storage such as unauthorized access, data breaches, and service interruptions. To ensure the security framework is robust and targeted, I seek your expertise in pinpointing the three paramount controls that should be incorporated. When proposing these controls, please adhere to the following guidelines:
+
+Format your response as follows: "CONTROL: RATIONALE", where you succinctly name the control and directly tie its importance to mitigating a specific risk associated with cloud storage.
+Your rationale should explicitly connect how the control addresses one or more of the aforementioned risks (unauthorized access, data compromise, and service disruptions).
+Ensure the response is concise, limiting it to the essential information that directly relates the control to its rationale within the context of cloud storage security.
+Refrain from including introductory or concluding remarks; only the specified format for the controls and their rationales is required.
+Example of the expected format:
+
+CONTROL: Encryption at Rest and in Transit. RATIONALE: Encrypting data both at rest and in transit protects against unauthorized access and data compromise by ensuring that even if data is intercepted, it remains unintelligible without the decryption keys.
+CONTROL: Multi-Factor Authentication (MFA). RATIONALE: MFA adds an additional layer of security by requiring two or more verification methods, significantly reducing the risk of unauthorized access through compromised credentials.
+CONTROL: Regular Security Audits. RATIONALE: Conducting regular security audits allows for the early detection of vulnerabilities and unauthorized changes, helping prevent data breaches and ensuring the integrity of the cloud service.

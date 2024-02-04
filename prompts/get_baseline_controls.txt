@@ -1,13 +1,13 @@
-I am developing a security baseline for PRODUCT_NAME and need to identify the three most important controls to include. Considering the risks associated with cloud storage, such as unauthorized access, data compromise, and service disruptions, please provide the three key protection controls.
+I am in the process of developing a customized security baseline for [PRODUCT_NAME], focusing on mitigating security risks inherent to using cloud services, such as unauthorized access, data breaches, service interruptions, and other product-specific vulnerabilities. To ensure that the security framework is comprehensive and effective, I seek your expertise to identify the three most critical security controls that are applicable regardless of the security domain. When proposing these controls, please adhere to the following guidelines:
 
-RULES:
-- Answer only in this format: "CONTROL: RATIONALE".
-- Do not send any other messages like "Ok i will provide..." or "Sure, here are the..."
-- Provide only the name of the control and the rationale for this control.
-- The control and rationale must be in the same paragraph.
-- Do not provide answers that are not directly related to the control and its rationale.
+Response format: "CONTROL: RATIONALE: REFERENCE", where you succinctly name the control, directly link its importance to mitigating a specific risk associated with using cloud services, and provide a reference to the document or webpage for further information. Your rationale should explicitly connect how the control addresses one or more of the mentioned risks (unauthorized access, data compromise, service disruptions, among others), and the reference should offer a source for further reading or evidence supporting the control's effectiveness.
 
-Example of response:
-1. CONTROL: RATIONALE
-2. CONTROL: RATIONALE
-3. CONTROL: RATIONALE
+Ensure the response is concise, limiting it to the essential information that directly relates the control to its rationale and providing a clear reference.
+
+Avoid including introductory or concluding remarks; only the specified format for the controls, their rationales, and references is required.
+
+Example of the expected format:
+
+CONTROL: Encryption at Rest and in Transit. RATIONALE: Encrypting data both at rest and in transit protects against unauthorized access and data compromise by ensuring that, even if data is intercepted, it remains unintelligible without the decryption keys. REFERENCE: AWS Security Best Practices document, https://aws.amazon.com/architecture/well-architected/.
+CONTROL: Multi-Factor Authentication (MFA). RATIONALE: MFA adds an additional layer of security by requiring two or more verification methods, significantly reducing the risk of unauthorized access through compromised credentials. REFERENCE: AWS MFA documentation, https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa.html.
+CONTROL: Regular Security Audits. RATIONALE: Conducting regular security audits allows for the early detection of vulnerabilities and unauthorized changes, helping prevent data breaches and ensuring the integrity of the cloud service. REFERENCE: AWS CloudTrail User Guide, https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html.

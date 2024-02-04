@@ -1,0 +1,13 @@
+Estou no processo de desenvolver uma base de segurança personalizada para [PRODUCT_NAME], focando em mitigar riscos de segurança inerentes ao uso de serviços na nuvem, tais como acesso não autorizado, violações de dados, interrupções de serviço e outras vulnerabilidades específicas ao produto. Para assegurar que o framework de segurança seja abrangente e eficaz, busco sua expertise para identificar os três controles de segurança mais críticos, que sejam aplicáveis independentemente do domínio de segurança. Ao propor esses controles, por favor, siga as diretrizes abaixo:
+
+Formato da resposta: "CONTROLE: RACIONAL", onde você nomeia de forma sucinta o controle e o vincula diretamente à sua importância na mitigação de um risco específico associado ao uso de serviços na nuvem. Sua justificativa deve conectar explicitamente como o controle aborda um ou mais dos riscos mencionados (acesso não autorizado, comprometimento de dados, interrupções de serviço, entre outros).
+
+Assegure que a resposta seja concisa, limitando-a às informações essenciais que relacionam diretamente o controle à sua justificativa, no contexto da segurança de serviços na nuvem.
+
+Evite incluir comentários introdutórios ou conclusivos; apenas o formato especificado para os controles e suas justificativas é necessário.
+
+Exemplo do formato esperado:
+
+CONTROLE: Criptografia em Repouso e em Trânsito. RACIONAL: A criptografia de dados, tanto em repouso quanto em trânsito, protege contra acesso não autorizado e comprometimento de dados, garantindo que, mesmo se os dados forem interceptados, permaneçam ininteligíveis sem as chaves de descriptografia.
+CONTROLE: Autenticação Multifator (MFA). RACIONAL: O MFA adiciona uma camada adicional de segurança ao exigir dois ou mais métodos de verificação, reduzindo significativamente o risco de acesso não autorizado por meio de credenciais comprometidas.
+CONTROLE: Auditorias de Segurança Regulares. RACIONAL: Realizar auditorias de segurança regulares permite a detecção precoce de vulnerabilidades e mudanças não autorizadas, ajudando a prevenir violações de dados e garantindo a integridade do serviço na nuvem.

@@ -1,0 +1,5 @@
+Give me the reference for " CONTROL_NAME ", i need the name of the source and the corresponding URL that supports the effectiveness of the suggested control.
+
+Example of the expected format:
+
+"OWASP Multi-Factor Authentication Best Practices", https://owasp.org/www-project-multifactor-authentication-guide/.
