@@ -35,7 +35,6 @@ class OpenAIThreadManager:
         token_count = self.approximate_token_count(content)  # Getting the token count for the message.
         messsage = await self.client.beta.threads.messages.create(thread_id=thread_id, role=role, content=content)
         print(f"Tokens used in message: {token_count}")  # Printing the number of tokens used.
-        print(f"New messsage created with ID: {messsage.id}")
 
 
 
