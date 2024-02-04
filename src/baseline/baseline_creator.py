@@ -11,8 +11,7 @@ from utils.text_replacer import replace_text_in_file
 CLOUD_SECURITY_EXPERT = "Cloud Security Expert"
 PRODUCT_NAME_PLACEHOLDER = "PRODUCT_NAME"
 CONTROL_NAME_PLACEHOLDER = "CONTROL_NAME"
-DATA_RAW_DIR = "data/raw"
-DATA_STRUCTURED_DIR = "data/structured"
+DATA_STRUCTURED_DIR = "data/structured/baseline"
 GET_BASELINE_CONTROLS_PROMPT = 'prompts/get_baseline_controls.txt'
 BASELINE_AUDIT_PROMPT = 'prompts/get_baseline_audit.txt'
 BASELINE_REMEDIATION_PROMPT = 'prompts/get_baseline_remediation.txt'
@@ -40,69 +39,51 @@ def extract_response(result_raw):
             messages.append(item.get('message', ''))
     return " ".join(messages)
 
+
 async def process_control_blocks(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted):
-    """Processes control blocks for audit and remediation."""
-    all_controls = {}
-    for prompt_file, process in [(BASELINE_AUDIT_PROMPT, 'Audit'), (BASELINE_REMEDIATION_PROMPT, 'Remediation'), (BASELINE_REFERENCE_PROMPT, 'Reference')]:
-        controls, control_counter = {}, 1
-        current_control_block, last_processed_block = [], None
-        for line in controls_extracted.strip().split('\n'):
-            if line.strip():
-                current_control_block.append(line.strip())
-            else:
-                if current_control_block and current_control_block != last_processed_block:
-                    # Processa o bloco de controle atual
-                    control_description = ' '.join(current_control_block)
-                    control_key = f"Control{control_counter}"
-                    response = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, CONTROL_NAME_PLACEHOLDER, control_description, process)
-                    result = next((item['message'] for item in response if item['role'] == 'assistant'), None)
-                    if result:
-                        controls[control_key] = {"Description": control_description, process: result}
-                        control_counter += 1
-                    last_processed_block = current_control_block.copy()
-                    current_control_block = []
+    processed_controls = {'Controls': {}, 'Audits': {}, 'Remediations': {}, 'References': {}}
+    control_counter = 1
 
-        # Processa o último bloco de controle se ele não foi processado
-        if current_control_block and current_control_block != last_processed_block:
-            control_description = ' '.join(current_control_block)
-            control_key = f"Control{control_counter}"
-            response = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, CONTROL_NAME_PLACEHOLDER, control_description, process)
-            result = next((item['message'] for item in response if item['role'] == 'assistant'), None)
-            if result:
-                controls[control_key] = {"Description": control_description, process: result}
-        
-        all_controls[process] = controls
-    return all_controls
+    for control_description in controls_extracted.split('\n\n'):
+        control_key = f"Control{control_counter}"
+        audit_key = f"Audit{control_counter}"
+        remediation_key = f"Remediation{control_counter}"
+        reference_key = f"Reference{control_counter}"
 
-def save_data(data, ticket, technology, base_dir="data/raw/baseline"):
-    """
-    Tenta salvar os dados em um arquivo JSON no diretório especificado.
-    Verifica se o arquivo foi salvo com sucesso e lida com possíveis erros.
+        # Processo de criação e execução para 'Audit'
+        audit_response = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, BASELINE_AUDIT_PROMPT, CONTROL_NAME_PLACEHOLDER, control_description, "Audit")
+        audit_result = next((item['message'] for item in audit_response if item['role'] == 'assistant'), None)
+        if audit_result:
+            processed_controls['Audits'][audit_key] = audit_result
 
-    Args:
-    - data: Os dados a serem salvos (dicionário).
-    - ticket: Identificador único para os dados.
-    - base_dir: Diretório base onde os dados serão salvos.
-    """
-    try:
-        
-        # Define o caminho completo do arquivo
-        file_path = os.path.join(base_dir, f"{ticket}_{technology}_{timestamp}.json")
-        
-        # Salva os dados no arquivo JSON
-        with open(file_path, 'w', encoding='utf-8') as file:
-            json.dump(data, file, ensure_ascii=False, indent=4)
-        
-        # Verifica se o arquivo foi de fato criado
-        if os.path.exists(file_path):
-            print(f"Dados salvos com sucesso em: {file_path}")
-        else:
-            # Isso não deveria acontecer a menos que o arquivo seja deletado
-            # ou movido após ser criado mas antes desta verificação
-            print("O arquivo não foi encontrado após a tentativa de salvamento.")
-    except Exception as e:
-        # Captura qualquer exceção que possa ocorrer e exibe a mensagem de erro
-        print(f"Ocorreu um erro ao tentar salvar os dados: {e}")
+        # Processo de criação e execução para 'Remediation'
+        remediation_response = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, BASELINE_REMEDIATION_PROMPT, CONTROL_NAME_PLACEHOLDER, control_description, "Remediation")
+        remediation_result = next((item['message'] for item in remediation_response if item['role'] == 'assistant'), None)
+        if remediation_result:
+            processed_controls['Remediations'][remediation_key] = remediation_result
+
+        # Processo de criação e execução para 'Reference'
+        reference_response = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, BASELINE_REFERENCE_PROMPT, CONTROL_NAME_PLACEHOLDER, control_description, "Reference")
+        reference_result = next((item['message'] for item in reference_response if item['role'] == 'assistant'), None)
+        if reference_result:
+            processed_controls['References'][reference_key] = reference_result
+
+        # Sempre adiciona a descrição do controle, independentemente dos resultados das outras chamadas
+        processed_controls['Controls'][control_key] = control_description
+
+        control_counter += 1
+
+    return processed_controls
+
+
+def save_data(data, ticket, technology, base_dir=DATA_STRUCTURED_DIR):
+    if not os.path.exists(base_dir):
+        os.makedirs(base_dir)
+    file_path = os.path.join(base_dir, f"{ticket}_{technology}_{timestamp}.json")
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=4)
+    print(f"Data saved to {file_path}")
+
 
 async def create_baseline(technology, api_key, ticket):
     """Main function to create a baseline for a given technology."""
