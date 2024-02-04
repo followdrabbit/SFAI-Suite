@@ -1,11 +1,15 @@
 # Imports corrigidos conforme os nomes fornecidos originalmente
 import json
 import os
+import re
+import pandas as pd
+from jinja2 import Environment, FileSystemLoader
 from datetime import datetime
 from utils.thread_manager import OpenAIThreadManager
 from utils.assistant_manager import OpenAIAssistantManager
 from utils.runs_manager import OpenAIRunsManager
 from utils.text_replacer import replace_text_in_file
+
 
 # Constantes
 CLOUD_SECURITY_EXPERT = "Cloud Security Expert"
@@ -17,6 +21,12 @@ BASELINE_AUDIT_PROMPT = 'prompts/get_baseline_audit.txt'
 BASELINE_REMEDIATION_PROMPT = 'prompts/get_baseline_remediation.txt'
 BASELINE_REFERENCE_PROMPT = 'prompts/get_baseline_reference.txt'
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+TEMPLATE_DIR = 'templates'
+
+
+
+# Caminho para o arquivo HTML de saída
+output_file_path = 'caminho/para/o/arquivo/de/saida.html'
 
 async def find_assistant_id(assistant_manager, name):
     """Returns the ID of an assistant by name."""
@@ -84,6 +94,56 @@ def save_data(data, ticket, technology, base_dir=DATA_STRUCTURED_DIR):
         json.dump(data, f, indent=4)
     print(f"Data saved to {file_path}")
 
+import pandas as pd
+import re
+from jinja2 import Environment, FileSystemLoader
+
+def generate_html_from_processed_controls(processed_controls: dict, template_dir: str, output_file_path: str) -> None:
+    """
+    Gera um arquivo HTML a partir de dados de controle fornecidos como um dicionário JSON,
+    utilizando um template HTML do Jinja2.
+
+    Args:
+        processed_controls (dict): Dicionário contendo os dados de controle, incluindo 'Controls', 'Audits', e 'Remediations'.
+        template_dir (str): O diretório onde o template Jinja2 está localizado.
+        output_file_path (str): O caminho para o arquivo HTML de saída que será gerado.
+
+    Returns:
+        None: A função não retorna nada, mas gera um arquivo HTML.
+    """
+    rows = []
+    for control_id, control_text in processed_controls.get('Controls', {}).items():
+        control_match = re.search(r"CONTROL: (.*?)\s*(RATIONALE:|$)", control_text)
+        rationale_match = re.search(r"RATIONALE: (.*?)\s*(REFERENCE:|$)", control_text)
+
+        control = control_match.group(1).strip() if control_match else "N/A"
+        rationale = rationale_match.group(1).strip() if rationale_match else "N/A"
+        audit = processed_controls['Audits'].get(control_id.replace('Control', 'Audit'), "N/A")
+        remediation = processed_controls['Remediations'].get(control_id.replace('Control', 'Remediation'), "N/A")
+
+        rows.append({
+            'ControlID': control_id,
+            'Control': control,
+            'Rationale': rationale,
+            'Audit': audit,
+            'Remediation': remediation
+        })
+
+    # Cria o DataFrame
+    df = pd.DataFrame(rows)
+
+    # Configura o Jinja2 para carregar o template
+    env = Environment(loader=FileSystemLoader(template_dir))
+    template = env.get_template('template_baseline.html')
+
+    # Renderiza o template com os dados
+    html_output = template.render(rows=df.to_dict(orient='records'))
+
+    # Salva o HTML renderizado em um arquivo
+    with open(output_file_path, 'w') as file:
+        file.write(html_output)
+
+    print(f"HTML gerado com sucesso e salvo em '{output_file_path}'.")
 
 async def create_baseline(technology, api_key, ticket):
     """Main function to create a baseline for a given technology."""
@@ -106,3 +166,41 @@ async def create_baseline(technology, api_key, ticket):
     print(processed_controls)
 
     save_data(processed_controls, ticket, technology)
+
+    output_file_path = f'data/baseline/{ticket}_{technology}_{timestamp}.html'
+    generate_html_from_processed_controls(processed_controls, TEMPLATE_DIR, output_file_path)
+
+    # # Preparando os dados para o DataFrame
+    # rows = []
+    # for control_id, control_text in processed_controls['Controls'].items():
+    #     control_info = control_text.split(". ")
+    #     control = control_info[0].split("CONTROL: ")[1]
+    #     rationale = control_info[1].split("RATIONALE: ")[1]
+    #     audit = processed_controls['Audits'][control_id.replace('Control', 'Audit')]
+    #     remediation = processed_controls['Remediations'][control_id.replace('Control', 'Remediation')]
+    #     rows.append({
+    #         'ControlID': control_id,
+    #         'Control': control,
+    #         'Rational': rationale,
+    #         'Audit': audit,
+    #         'Remediation': remediation
+    #     })
+
+    # # Convertendo para DataFrame
+    # df = pd.DataFrame(rows)
+
+    # # Configuração do Jinja2 para carregar o template do diretório 'templates'
+    # env = Environment(loader=FileSystemLoader('templates'))
+
+    # # Carregando o template chamado 'template_baseline.html'
+    # template = env.get_template('template_baseline.html')
+
+    # # Renderizando o template com os dados do DataFrame
+    # html_output = template.render(rows=df.to_dict(orient='records'))
+
+    # # Salvando o HTML renderizado em um arquivo
+    # output_file_path = f'data/baseline/{ticket}_{technology}_{timestamp}.html'
+    # with open(output_file_path, 'w') as file:
+    #     file.write(html_output)
+
+    # print(f"HTML gerado com sucesso e salvo em '{output_file_path}'.")
