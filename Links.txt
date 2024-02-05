@@ -1,0 +1,5 @@
+- OpenAI CMD Terminal Assistant Chat Manager: https://github.com/MrXandbadas/MrX_OAI_Assistant_Manager/blob/main/assistant_manager/runs_manager.py
+- Openai examples: https://github.com/openai/openai-python/blob/main/examples/assistant.py
+- Openai Assistant - A simple assistant for Example of OpenAI assistant: https://github.com/shamspias/openai-assistent-python/blob/main/chat_session.py
+- OpenAi Platform: https://platform.openai.com/docs/overview
+- AWS Config conformance packs: https://github.com/awslabs/aws-config-rules/blob/master/aws-config-conformance-packs/Security-Best-Practices-for-EFS.yaml
