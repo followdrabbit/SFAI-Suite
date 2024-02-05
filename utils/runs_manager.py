@@ -2,6 +2,7 @@
 import openai
 import asyncio
 import os
+import json
 from dotenv import load_dotenv  # Used for loading environment variables
 
 # Define a class to manage interactions with OpenAI's API
@@ -20,13 +21,80 @@ class OpenAIRunsManager:
     async def retrieve_run(self, thread_id: str, run_id: str):
         return await self.client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
 
+    def update_run(self, thread_id, run_id, metadata=None, extra_headers=None, extra_query=None, extra_body=None, timeout=None):
+            """
+            Modifies a run.
+
+            Args:
+                thread_id: The ID of the thread the run belongs to.
+                run_id: The ID of the run to update.
+                metadata: Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maxium of 512 characters long.
+                extra_headers: Send extra headers
+                extra_query: Add additional query parameters to the request
+                extra_body: Add additional JSON properties to the request
+                timeout: Override the client-level default timeout for this request, in seconds
+            """
+            return self.client.threads.runs.update(
+                    thread_id=thread_id,
+                    run_id=run_id,
+                    metadata=metadata,
+                    extra_headers=extra_headers,
+                    extra_query=extra_query,
+                    extra_body=extra_body,
+                    timeout=timeout
+            )
+
     # Asynchronously list all runs associated with a thread
-    async def list_run(self, thread_id: str):
-        return await self.client.beta.threads.runs.list(thread_id=thread_id)
+    async def list_runs(self, thread_id, limit=20, order="desc", after=None, before=None, extra_headers=None, extra_query=None, extra_body=None, timeout=None):
+            """
+            Returns a list of runs belonging to a thread.
+
+            Args:
+                thread_id: The ID of the thread to list runs from.
+                limit: A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
+                order: Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
+                after: A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
+                before: A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
+                extra_headers: Send extra headers
+                extra_query: Add additional query parameters to the request
+                extra_body: Add additional JSON properties to the request
+                timeout: Override the client-level default timeout for this request, in seconds
+            """
+            return self.client.beta.threads.runs.list(
+                    thread_id=thread_id, 
+                    limit=limit, 
+                    order=order, 
+                    after=after, 
+                    before=before,
+                    extra_headers=extra_headers,
+                    extra_query=extra_query,
+                    extra_body=extra_body,
+                    timeout=timeout
+            )
 
     # Asynchronously cancel a specific run
-    async def cancel_run(self, thread_id: str, run_id: str):
-        return await self.client.beta.threads.runs.cancel(thread_id=thread_id, run_id=run_id)
+    async def cancel_run(self, thread_id, run_id, extra_headers=None, extra_query=None, extra_body=None, timeout=None):
+            """
+            Cancels a run.
+
+            Args:
+                thread_id: The ID of the thread the run belongs to.
+                run_id: The ID of the run to cancel.
+                extra_headers: Send extra headers
+                extra_query: Add additional query parameters to the request
+                extra_body: Add additional JSON properties to the request
+                timeout: Override the client-level default timeout for this request, in seconds
+            """
+            return self.client.beta.threads.runs.cancel(
+                    thread_id=thread_id,
+                    run_id=run_id,
+                    extra_headers=extra_headers,
+                    extra_query=extra_query,
+                    extra_body=extra_body,
+                    timeout=timeout
+            )
+
+
 
     # Asynchronously process a run and check its status
     async def process_run(self, thread_id: str, run_id: str):
@@ -45,8 +113,22 @@ class OpenAIRunsManager:
                         msg = {"role": message.role, "message": message.content[0].text.value}
                         result_messages.append(msg)
                     return result_messages
+                
+                elif run.status == "requires_action":
+                    print("The run requires action.")
+                    required_actions_json = run.required_action.submit_tool_outputs.model_dump_json(indent=4)
+                    print(f"Required Actions: {required_actions_json}")
+                    print("Cancelling run")
+                    self.cancel_run(thread_id, run_id)
+                    return None
+
+                elif run.status == "failed":
+                    print("The run failed.")
+                    print(f"Error: {json.dumps(str(run), indent=4)}")
+                    return None
+                
                 else:
-                    print(f"In progress...")
+                    print(f"Run status.............. {run.status}")
                     await asyncio.sleep(5)  # Wait for 5 seconds before checking the status again
 
         except Exception as e:
