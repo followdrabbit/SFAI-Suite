@@ -104,7 +104,7 @@ class OpenAIRunsManager:
                 run = openai.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
 
                 if run.status == "completed":
-                    print(f"Run Completed")
+                    print(f"Run status.............. {run.status}")
                     messages = openai.beta.threads.messages.list(thread_id=thread_id)
 
                     result_messages = []

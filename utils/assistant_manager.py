@@ -98,7 +98,7 @@ async def main():
     # Create a new assistant (example).
     await manager.create_assistant(
         name="Cloud Security Expert",
-        instructions="An assistant specialized in cloud information security.",
+        instructions="An assistant specialized in providing customized security recommendations for a wide range of AWS products. It should analyze the configuration and usage of each product, identify potential vulnerabilities, and recommend specific security controls, aligned with information security best practices, relevant compliance standards, and security frameworks. The assistant should offer guidance for continuous monitoring and incident response, relying on services like CloudWatch and AWS Security Hub, and stay updated on the latest security threats and vulnerabilities.",
         tools=[{"type": "code_interpreter"}],
         model="gpt-3.5-turbo-16k"
     )

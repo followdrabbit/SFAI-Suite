@@ -1,18 +1,10 @@
-"I am in the process of developing a detailed and comprehensive security baseline for PRODUCT_NAME, aimed at thoroughly addressing the security risks associated with the use of cloud services. These risks include, but are not limited to, unauthorized access, data breaches, service disruptions, and product-specific vulnerabilities. To construct a security framework that is both robust and inclusive of all recommended security practices and guidelines, I seek to integrate the complete recommendations from recognized entities such as AWS, NIST, and CIS.
-
-I request that the recommendations be based on documents provided by these entities, covering all applicable security areas, from universal controls to those specific to security domains or the product itself. These recommendations should be presented in the following structured format:
+Consult the CIS, NIS, AWS and STIG documents and tell me which security controls are recommended for creating a security baseline for the PRODUCT_NAME product. This baseline will be used by the technical areas to apply the security configurations defined in this document.
 
 Response Format: 'CONTROL: RATIONALE: REFERENCE'. It is essential to explicitly name the control, elucidate its relevance in mitigating risks associated with the use of cloud services, and indicate a specific reference for further information. The rationale should directly connect the control to its effectiveness in reducing specific risks. The reference should point to specific documents, guides, or articles from the recognized entities (AWS, NIST, CIS), providing a solid foundation for a detailed understanding or validation of the control's efficacy.
 
-Please adhere to the provided structured format for your recommendations and avoid adding any introductory or concluding comments; the response should strictly include the detailed controls, their justifications, and references.
-
 Prioritize the inclusion of all relevant recommendations from these entities to ensure comprehensive coverage of necessary security measures, thereby forming a holistic and complete view of the recommended security strategies.
 
-Maintain the focus of your response, emphasizing the direct correlation between each control and its role in risk mitigation, accompanied by a precise reference
-
-I know that you have limitations and i do not want warnings about it.
-
-Provide only the controls that are related with PRODUCT_NAME
+Avoid adding any introductory or concluding comments; the response should strictly include the detailed controls, their justifications, and references.
 
 For example:
 
