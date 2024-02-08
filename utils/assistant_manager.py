@@ -13,20 +13,27 @@ class OpenAIAssistantManager:
     async def list_assistants(self):
         # Asynchronously fetch the list of assistants from the OpenAI API.
         response = await self.client.beta.assistants.list()
-        unique_assistants = {}
-        for assistant in response.data:
-            # Check for duplicate assistants based on their names.
-            if assistant.name not in unique_assistants:
-                unique_assistants[assistant.name] = assistant.id
-            else:
-                # Print a message and delete the duplicate assistant.
-                print(f"Duplicate assistant found: {assistant.name} with ID {assistant.id} - Removing.")
-                await self.delete_assistant(assistant.id)
-        return unique_assistants
+        # unique_assistants = {}
+        # for assistant in response.data:
+        #     # Check for duplicate assistants based on their names.
+        #     if assistant.name not in unique_assistants:
+        #         unique_assistants[assistant.name] = assistant.id
+        #     else:
+        #         # Print a message and delete the duplicate assistant.
+        #         print(f"Duplicate assistant found: {assistant.name} with ID {assistant.id} - Removing.")
+        #         await self.delete_assistant(assistant.id)
+        return response
 
     async def delete_assistant(self, assistant_id: str):
         # Delete an assistant using its ID.
-        return await self.client.beta.assistants.delete(assistant_id)
+        
+        try:
+            await self.client.beta.assistants.delete(assistant_id)
+            print(f"Assistant deleted successfully.")
+            return
+
+        except openai.NotFoundError as e:
+            print(f"Error deleting assistant {assistant_id}: {e}")
 
     async def create_assistant(self, name, instructions, tools, model):
         try:
@@ -37,7 +44,7 @@ class OpenAIAssistantManager:
                 tools=tools,
                 model=model
             )
-            print(f"Assistant created successfully: {assistant.id}")
+            return (assistant.id)
         except Exception as e:
             print(f"Error creating assistant: {e}")
 
