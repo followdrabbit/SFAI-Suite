@@ -17,7 +17,7 @@ PRODUCT_NAME_PLACEHOLDER = "PRODUCT_NAME"
 CONTROL_NAME_PLACEHOLDER = "CONTROL_NAME"
 DATA_RAW_DIR = "data/raw"
 DATA_STRUCTURED_DIR = "data/structured/"
-DATA_STRUCTURED_BASELINE_DIR = "data/structured/baseline"
+DATA_BASELINE_DIR = "data/baseline"
 GET_BASELINE_CONTROLS_PROMPT = 'prompts/get_baseline_controls.txt'
 BASELINE_AUDIT_PROMPT = 'prompts/get_baseline_audit.txt'
 BASELINE_REMEDIATION_PROMPT = 'prompts/get_baseline_remediation.txt'
@@ -88,7 +88,7 @@ async def process_control_blocks(thread_manager, thread_id, runs_manager, assist
     return processed_controls
 
 
-def save_data(data, ticket, technology, base_dir=DATA_STRUCTURED_BASELINE_DIR):
+def save_data(data, ticket, technology, base_dir=DATA_BASELINE_DIR):
     if not os.path.exists(base_dir):
         os.makedirs(base_dir)
     file_path = os.path.join(base_dir, f"{ticket}_{technology}_{timestamp}.json")
