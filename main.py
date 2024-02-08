@@ -2,6 +2,7 @@ import asyncio
 import os
 import argparse
 from dotenv import load_dotenv
+import openai
 from utils.assistant_manager import OpenAIAssistantManager
 from src.baseline.baseline_creator import create_baseline
 
@@ -25,7 +26,10 @@ async def main():
     args = parser.parse_args()
 
     # Call the controls_creator function with the technology and the assistant ID
-    # await create_baseline(technology=args.technology, api_key=api_key, ticket=args.ticket)
+    # await create_baseline(technology=args.technology, ticket=args.ticket)
+
+    openai.files.
+
 
 if __name__ == "__main__":
     asyncio.run(main())

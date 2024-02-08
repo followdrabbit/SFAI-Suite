@@ -3,6 +3,7 @@ import json
 import os
 import re
 import pandas as pd
+from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader
 from datetime import datetime
 from utils.thread_manager import OpenAIThreadManager
@@ -11,8 +12,13 @@ from utils.runs_manager import OpenAIRunsManager
 from utils.text_replacer import replace_text_in_file
 
 
+# Carrega as variáveis de ambiente do arquivo .env
+load_dotenv()
+
 # Constantes
-CLOUD_SECURITY_EXPERT = "Cloud Security Expert"
+API_KEY = os.getenv("OPENAI_API_KEY")
+BASELINESECURITYEXPERT_ID = os.getenv("BASELINESECURITYEXPERT_ID")
+SECURITYGUARDIANAI = os.getenv("SECURITYGUARDIANAI_ID")
 PRODUCT_NAME_PLACEHOLDER = "PRODUCT_NAME"
 CONTROL_NAME_PLACEHOLDER = "CONTROL_NAME"
 DATA_RAW_DIR = "data/raw"
@@ -26,14 +32,6 @@ timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 TEMPLATE_DIR = 'templates'
 
 
-
-# Caminho para o arquivo HTML de saída
-output_file_path = 'caminho/para/o/arquivo/de/saida.html'
-
-async def find_assistant_id(assistant_manager, name):
-    """Returns the ID of an assistant by name."""
-    unique_assistants = await assistant_manager.list_assistants()
-    return unique_assistants.get(name)
 
 async def create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, prompt_file, placeholder, replacement_text, process):
     """Creates and processes a run for replacing placeholders in a prompt."""
@@ -50,7 +48,6 @@ def extract_response(result_raw):
         if item.get('role') == 'assistant':
             messages.append(item.get('message', ''))
     return " ".join(messages)
-
 
 async def process_control_blocks(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted):
     processed_controls = {'Controls': {}, 'Audits': {}, 'Remediations': {}, 'References': {}}
@@ -147,17 +144,14 @@ def generate_html_from_processed_controls(processed_controls: dict, template_dir
 
     print(f"HTML gerado com sucesso e salvo em '{output_file_path}'.")
 
-async def create_baseline(technology, api_key, ticket):
-    """Main function to create a baseline for a given technology."""
-    assistant_manager = OpenAIAssistantManager(api_key)
-    assistant_id = await find_assistant_id(assistant_manager, CLOUD_SECURITY_EXPERT)
-    if assistant_id is None:
-        print("Assistant 'Cloud Security Expert' not found.")
-        return
+async def create_baseline(technology, ticket):
+    # Carrega as variáveis de ambiente do arquivo .env apenas uma vez, ao importar o módulo
+    load_dotenv()
 
-    thread_manager, runs_manager = OpenAIThreadManager(api_key), OpenAIRunsManager(api_key)
+    """Main function to create a baseline for a given technology."""
+    thread_manager, runs_manager = OpenAIThreadManager(API_KEY), OpenAIRunsManager(API_KEY)
     thread_id = await thread_manager.create_thread()
-    controls_raw = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, GET_BASELINE_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology, "Controls")
+    controls_raw = await create_and_process_run(thread_manager, thread_id, runs_manager, BASELINESECURITYEXPERT_ID, GET_BASELINE_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology, "Controls")
     controls_extracted = extract_response(controls_raw)
 
     print("##################################################################")
