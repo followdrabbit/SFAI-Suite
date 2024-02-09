@@ -1,0 +1,304 @@
+To implement the security controls for Amazon S3 based on guidelines from CIS, NIST, AWS Security Best Practices, and STIGs, you can use the following commands:
+
+Implement the principle of least privilege for IAM permissions (AWS Security Best Practices):
+```bash
+aws s3 put-bucket-policy --bucket <bucket-name> --policy '{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::<bucket-name>/*"
+      ]
+    }
+  ]
+}'
+```
+URL: [IAM Best Practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html)
+
+Enable Multi-Factor Authentication (MFA) for object deletion (CIS AWS Foundations):
+```bash
+aws s3api put-bucket-versioning --bucket <bucket-name> --versioning-configuration 'MFADelete=Enabled --mfa "arn:aws:iam::<account-id>:mfa/<mfa-device-serial-number>"'
+```
+URL: [AWS CIS Foundations Benchmark](https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf)
+
+Enable server-side encryption for all objects stored in S3 (NIST Special Publication 800-53):
+```bash
+aws s3api put-bucket-encryption --bucket <bucket-name> --server-side-encryption-configuration '{
+  "Rules": [
+    {
+      "ApplyServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+      }
+    }
+  ]
+}'
+```
+URL: [NIST Special Publication 800-53](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf)
+
+Use policies to enforce encryption on upload (AWS Security Best Practices):
+```bash
+aws s3api put-bucket-policy --bucket <bucket-name> --policy '{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Action": "s3:PutObject",
+      "Principal": "*",
+      "Resource": "arn:aws:s3:::<bucket-name>/*",
+      "Condition": {
+        "StringNotEquals": {
+          "s3:x-amz-server-side-encryption": "AES256"
+        }
+      }
+    }
+  ]
+}'
+```
+URL: [Using IAM Policies](https://docs.aws.amazon.com/AmazonS3/latest/dev/using-iam-policies.html)
+
+Implement encryption in transit for S3 using SSL/TLS (AWS Security Best Practices):
+```bash
+aws s3api put-bucket-policy --bucket <bucket-name> --policy '{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3:::<bucket-name>/*",
+      "Condition": {
+        "Bool": {
+          "aws:SecureTransport": "false"
+        }
+      }
+    }
+  ]
+}'
+```
+URL: [Using Encryption](https://docs.aws.amazon.com/AmazonS3/latest/dev/using-encryption.html)
+
+Enable AWS CloudTrail logging for S3 bucket (AWS Security Best Practices):
+```bash
+aws s3api put-bucket-logging --bucket <bucket-name> --logging-configuration '{
+  "DestinationBucketName": "<destination-bucket-name>",
+  "LogFilePrefix": "<log-file-prefix>"
+}'
+```
+URL: [CloudTrail Logging](https://docs.aws.amazon.com/AmazonS3/latest/dev/cloudtrail-logging.html)
+
+Restrict access to S3 bucket from specific VPC only (AWS Security Best Practices):
+```bash
+aws s3api put-bucket-policy --bucket <bucket-name> --policy '{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3:::<bucket-name>/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:sourceVpc": "<vpc-id>"
+        }
+      }
+    }
+  ]
+}'
+```
+URL: [VPC Endpoint Examples](https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies-vpc-endpoint.html)
+
+Enable AWS CloudWatch logging for S3 bucket (AWS Security Best Practices):
+```bash
+aws s3api put-bucket-logging --bucket <bucket-name> --logging-configuration '{
+  "DestinationBucketName": "<destination-bucket-name>",
+  "LogFilePrefix": "<log-file-prefix>"
+}'
+```
+URL: [CloudWatch Monitoring](https://docs.aws.amazon.com/AmazonS3/latest/dev/cloudwatch-monitoring.html)
+
+Please note that these commands assume you have the AWS CLI configured and have the necessary permissions to execute them. Periodically scan S3 buckets for open access permissions (AWS Security Best Practices):
+```
+aws s3 ls --recursive s3:// --output table
+```
+URL: [https://docs.aws.amazon.com/cli/latest/userguide/cli-services-s3-commands.html](https://docs.aws.amazon.com/cli/latest/userguide/cli-services-s3-commands.html)
+
+Enable S3 Block Public Access (AWS Security Best Practices):
+```
+aws s3api put-public-access-block --bucket <bucket-name> --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
+```
+URL: [https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html](https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html)
+
+Enable anomaly detection for S3 using Amazon Macie (AWS Security Best Practices):
+```
+aws macie2 create-classification-job --job-type ONE_TIME --name <job-name> --bucket-definitions [{\"bucketName\": \"<bucket-name>\"}]
+```
+URL: [https://aws.amazon.com/macie/](https://aws.amazon.com/macie/)
+
+Enable AWS Config to monitor S3 bucket configurations (AWS Security Best Practices):
+```
+aws configservice put-configuration-aggregator --configuration-aggregator-name <aggregator-name> --account-aggregation-sources "AccountIds"=["<account-id>"] --organization-aggregation-source "AllAwsRegions=true,RoleArn=\"<role-arn>\""
+aws configservice put-aggregation-authorization --authorized-aws-region <region> --authorized-account-id <account-id>
+aws configservice put-aggregation-source --configuration-aggregator-name <aggregator-name> --source-accounts <account-id> --aws-regions <region>
+```
+URL: [https://docs.aws.amazon.com/config/latest/developerguide/running-aggregator-cli.html](https://docs.aws.amazon.com/config/latest/developerguide/running-aggregator-cli.html)
+
+Enable AWS CloudTrail logging for S3 bucket (CIS AWS Foundations):
+```
+aws s3api put-bucket-logging --bucket <bucket-name> --logging-configuration '{"LoggingEnabled":{"TargetBucket":"<log-bucket>","TargetPrefix":"<log-prefix>"}}'
+```
+URL: [https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf](https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf) Enable AWS Security Hub for S3 (AWS Security Best Practices):
+```
+aws securityhub enable-aws-service-access --region <region>
+aws securityhub enable-import-findings-for-product --product-arn arn:aws:securityhub:<region>:<account-id>:product/aws/aws-foundational-security-best-practices/v/1.0.0
+aws securityhub update-action-target --action-target-arn arn:aws:securityhub:<region>:<account-id>:action/custom/AWS-FOUNDATION-S3.1 --name AWS-FOUNDATION-S3.1 --description "AWS Security Hub action target for S3.1" --severity-label "HIGH"
+aws securityhub update-findings --filters "ProductFields.ProviderName[]=AWS Security Hub" "ProductFields.ProviderId[]=aws-foundational-security-best-practices" --severity-labels "LOW,MEDIUM,HIGH,CRITICAL" --ids "<s3-bucket-arn>"
+aws securityhub update-findings --filters "ProductFields.ProviderName[]=AWS Security Hub" "ProductFields.ProviderId[]=aws-foundational-security-best-practices" --severity-labels "LOW,MEDIUM,HIGH,CRITICAL" --workflow-state "NEW" --status "RESOLVED" --ids "<s3-bucket-arn>"
+```
+URL: [https://aws.amazon.com/security-hub/](https://aws.amazon.com/security-hub/)
+
+Enable Amazon S3 Access Analyzer for S3 (AWS Security Best Practices):
+```
+aws s3control update-account-public-access-block --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
+aws s3control put-public-access-block --account-id <account-id> --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
+```
+URL: [https://docs.aws.amazon.com/awscloudtrail/latest/userguide/receive-analyzer.html](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/receive-analyzer.html)
+
+Enable VPC endpoint for S3 (AWS Security Best Practices):
+```
+aws ec2 create-vpc-endpoint --vpc-id <vpc-id> --service-name com.amazonaws.<region>.s3 --route-table-ids <route-table-id> --policy-document "{
+  \"Version\": \"2012-10-17\",
+  \"Statement\": [
+    {
+      \"Effect\": \"Allow\",
+      \"Principal\": \"*\",
+      \"Action\": \"*\",
+      \"Resource\": \"*\"
+    }
+  ]
+}"
+```
+URL: [https://docs.aws.amazon.com/vpc/latest/userguide/vpce-gateway.html](https://docs.aws.amazon.com/vpc/latest/userguide/vpce-gateway.html) Implement encryption in transit for S3 using SSL/TLS (AWS Security Best Practices):
+```
+aws s3api put-bucket-policy --bucket <bucket-name> --policy '{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3:::<bucket-name>/*",
+      "Condition": {
+        "Bool": {
+          "aws:SecureTransport": "false"
+        }
+      }
+    }
+  ]
+}'
+```
+URL: [https://docs.aws.amazon.com/AmazonS3/latest/dev/using-encryption.html](https://docs.aws.amazon.com/AmazonS3/latest/dev/using-encryption.html)
+
+Enable AWS CloudTrail logging for S3 bucket (AWS Security Best Practices):
+```
+aws s3api put-bucket-logging --bucket <bucket-name> --logging-configuration '{
+  "DestinationBucketName": "<destination-bucket-name>",
+  "LogFilePrefix": "<log-file-prefix>"
+}'
+```
+URL: [https://docs.aws.amazon.com/AmazonS3/latest/dev/cloudtrail-logging.html](https://docs.aws.amazon.com/AmazonS3/latest/dev/cloudtrail-logging.html)
+
+Restrict access to S3 bucket from specific VPC only (AWS Security Best Practices):
+```
+aws s3api put-bucket-policy --bucket <bucket-name> --policy '{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3:::<bucket-name>/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:sourceVpc": "<vpc-id>"
+        }
+      }
+    }
+  ]
+}'
+```
+URL: [https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies-vpc-endpoint.html](https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies-vpc-endpoint.html)
+
+Enable AWS CloudWatch logging for S3 bucket (AWS Security Best Practices):
+```
+aws s3api put-bucket-logging --bucket <bucket-name> --logging-configuration '{
+  "DestinationBucketName": "<destination-bucket-name>",
+  "LogFilePrefix": "<log-file-prefix>"
+}'
+```
+URL: [https://docs.aws.amazon.com/AmazonS3/latest/dev/cloudwatch-monitoring.html](https://docs.aws.amazon.com/AmazonS3/latest/dev/cloudwatch-monitoring.html) Ensure IAM policies for S3 are restricted to necessary operations (AWS Security Best Practices):
+```
+aws s3 put-bucket-policy --bucket <bucket-name> --policy '{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::<bucket-name>/*"
+      ]
+    }
+  ]
+}'
+```
+URL: [https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html)
+
+Require multi-factor authentication to delete objects (CIS AWS Foundations):
+```
+aws s3api put-bucket-versioning --bucket <bucket-name> --versioning-configuration 'MFADelete=Enabled --mfa "arn:aws:iam::<account-id>:mfa/<mfa-device-serial-number>"'
+```
+URL: [https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf](https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf)
+
+Use AWS S3 SSE to protect data at rest (NIST Special Publication 800-53):
+```
+aws s3api put-bucket-encryption --bucket <bucket-name> --server-side-encryption-configuration '{
+  "Rules": [
+    {
+      "ApplyServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+      }
+    }
+  ]
+}'
+```
+URL: [https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf)
+
+Configure bucket policies to reject unencrypted object uploads (AWS Security Best Practices):
+```
+aws s3api put-bucket-policy --bucket <bucket-name> --policy '{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Action": "s3:PutObject",
+      "Principal": "*",
+      "Resource": "arn:aws:s3:::<bucket-name>/*",
+      "Condition": {
+        "StringNotEquals": {
+          "s3:x-amz-server-side-encryption": "AES256"
+        }
+      }
+    }
+  ]
+}'
+```
+URL: [https://docs.aws.amazon.com/AmazonS3/latest/dev/using-iam-policies.html](https://docs.aws.amazon.com/AmazonS3/latest/dev/using-iam-policies.html)

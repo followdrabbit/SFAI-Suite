@@ -1,0 +1,43 @@
+Enable S3 block public access (AWS Security Best Practices): Enable S3 block public access settings on all S3 buckets to prevent public access at the account level. URL: [https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html](https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html)
+
+Enable VPC endpoint for S3 (AWS Security Best Practices): Create a VPC endpoint for S3 to ensure that S3 traffic does not leave the VPC and traverse the public internet. URL: [https://docs.aws.amazon.com/vpc/latest/userguide/vpc-endpoints-s3.html](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-endpoints-s3.html)
+
+Enable S3 data events in AWS CloudTrail (CIS AWS Foundations): Enable S3 data events in AWS CloudTrail to capture detailed logs of data-level events for S3 buckets. URL: [https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf](https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf)
+
+Enable S3 bucket replication (NIST Special Publication 800-53): Configure S3 bucket replication to replicate data to a different AWS Region for disaster recovery. URL: [https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf)
+
+Enable Amazon S3 Inventory (CIS AWS Foundations): Enable Amazon S3 Inventory to generate regular reports on the objects within S3 buckets for auditing and compliance purposes. URL: [https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf](https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf)
+
+Enable S3 bucket access logging (NIST Special Publication 800-53): Enable access logging for S3 buckets to capture detailed logs of all requests made to the bucket. URL: [https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf)
+
+Enable S3 bucket event notifications (AWS Security Best Practices): Configure event notifications for S3 buckets to monitor specific events such as object creation, deletion, etc. URL: [https://docs.aws.amazon.com/AmazonS3/latest/userguide/NotificationHowTo.html](https://docs.aws.amazon.com/AmazonS3/latest/userguide/NotificationHowTo.html)
+
+Enable S3 bucket transfer acceleration (NIST Special Publication 800-53): Enable S3 bucket transfer acceleration to speed up data transfers to and from S3 buckets. URL: [https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf) Restrict public access to S3 buckets (AWS Security Best Practices): Ensure that S3 bucket policies and access control lists (ACLs) are configured to deny public access. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html
+
+Enable access logging for S3 buckets (CIS AWS Foundations): Enable access logging for S3 buckets to capture detailed logs of all requests. URL: https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf
+
+Enable versioning for S3 buckets (AWS Security Best Practices): Enable versioning for S3 buckets to protect against accidental deletion and to retain previous versions of objects. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html
+
+Enable S3 bucket and object-level logging (NIST Special Publication 800-53): Enable CloudTrail logs for S3 buckets and configure logging for all S3 objects. URL: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf
+
+Enable server-side encryption using AWS Key Management Service (KMS) for S3 (CIS AWS Foundations): Enable server-side encryption for S3 using AWS KMS to ensure data at rest is encrypted. URL: https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf
+
+Enable server-side encryption using AWS S3 Managed Keys (SSE-S3) for S3 (AWS Security Best Practices): Enable SSE-S3 for S3 buckets to automatically encrypt objects using AWS-managed keys. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/serv-side-encryption.html
+
+Enable server-side encryption using AWS Key Management Service (KMS) Customer Master Keys (CMKs) for S3 (AWS Security Best Practices): Enable SSE-KMS for S3 buckets to encrypt objects using customer-managed CMKs. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/serv-side-encryption.html
+
+Enable default encryption for S3 buckets (AWS Security Best Practices): Set up a default encryption configuration for S3 buckets to enforce encryption on all new objects. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html
+
+Enable S3 bucket access logging using Amazon CloudWatch (CIS AWS Foundations): Enable CloudWatch logging for S3 buckets to receive notifications about access events. URL: https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf
+
+Enable S3 bucket event notifications (NIST Special Publication 800-53): Configure event notifications for S3 buckets to detect and respond to specific events. URL: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf
+
+Implement bucket policies for fine-grained access control (AWS Security Best Practices): Use bucket policies to define fine-grained access control for S3 buckets and objects. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html
+
+Implement cross-region replication for S3 buckets (AWS Security Best Practices): Configure cross-region replication for S3 buckets to replicate data across multiple AWS regions for disaster recovery. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/crr.html
+
+Enable block public access for S3 buckets (CIS AWS Foundations): Enable block public access settings for S3 buckets to prevent public access at the bucket level. URL: https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf
+
+Enable S3 bucket inventory (AWS Security Best Practices): Enable S3 bucket inventory to generate regular reports on objects within a bucket for auditing and compliance. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/storage-inventory.html
+
+Enable access denied event logging for S3 buckets (NIST Special Publication 800-53): Enable CloudTrail access denied event logging for S3 buckets to monitor unauthorized access attempts. URL: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf

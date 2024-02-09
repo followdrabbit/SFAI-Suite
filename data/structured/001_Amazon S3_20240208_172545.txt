@@ -1,0 +1,19 @@
+Restrict public access to S3 buckets (AWS Security Best Practices): Ensure that S3 buckets are not publicly accessible. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev-retired/access-control-block-public-access.html
+
+Enable S3 bucket versioning (CIS AWS Foundations): Enable versioning for all S3 buckets. URL: https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf
+
+Enable server access logging for S3 buckets (NIST Special Publication 800-53): Enable access logging to track activity on S3 buckets. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerLogs.html
+
+Enable S3 bucket encryption with AWS Key Management Service (AWS Security Best Practices): Use AWS KMS to manage encryption keys for S3 buckets. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingKMSEncryption.html
+
+Implement Object Lock for S3 buckets (NIST Special Publication 800-53): Use Object Lock to prevent objects from being deleted or modified for a specified retention period. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock.html
+
+Configure S3 bucket versioning to require MFA for deletion (CIS AWS Foundations): Enable versioning and require multi-factor authentication to delete S3 bucket versions. URL: https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf
+
+Enforce secure transport (HTTPS) for S3 bucket (NIST Special Publication 800-53): Configure S3 bucket policies to require secure (HTTPS) connections. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html#example-bucket-policies-use-case-3
+
+Enable S3 bucket access logging (AWS Security Best Practices): Enable logging of S3 bucket access using AWS CloudTrail. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/enable-logging.html
+
+Implement VPC endpoint for S3 (NIST Special Publication 800-53): Use VPC endpoints to ensure direct communication between VPC resources and S3 without going through the internet gateway. URL: https://docs.aws.amazon.com/vpc/latest/userguide/vpc-endpoints-s3.html
+
+Enable S3 bucket event notifications (AWS Security Best Practices): Configure event notifications to trigger actions for specific S3 bucket events. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html

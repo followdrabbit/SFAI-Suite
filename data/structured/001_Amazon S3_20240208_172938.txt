@@ -1,0 +1,19 @@
+Restrict public access to S3 buckets (AWS Security Best Practices): Ensure that S3 buckets do not allow public access. URL: [https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html](https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html)
+
+Implement bucket versioning for easy recovery (AWS Security Best Practices): Enable S3 bucket versioning to protect against accidental deletion or modification of objects. URL: [https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html](https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html)
+
+Enable server-side encryption for all objects stored in S3 (AWS Security Best Practices): Use server-side encryption (SSE) to protect data at rest in S3. URL: [https://docs.aws.amazon.com/AmazonS3/latest/dev/serv-side-encryption.html](https://docs.aws.amazon.com/AmazonS3/latest/dev/serv-side-encryption.html)
+
+Encrypt data in transit using SSL/TLS (AWS Security Best Practices): Enable SSL/TLS encryption (HTTPS) for data transfers between clients and S3. URL: [https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingHTTPHTTPS.html](https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingHTTPHTTPS.html)
+
+Enable AWS CloudTrail logging for S3 (AWS Security Best Practices): Enable AWS CloudTrail to log S3 API activities for monitoring and audit purposes. URL: [https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-s3-bucket-settings.html](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-s3-bucket-settings.html)
+
+Enable S3 Bucket-level logging (AWS Security Best Practices): Enable S3 bucket-level logging to capture detailed access logs for tracking and analysis. URL: [https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerLogs.html](https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerLogs.html)
+
+Enable S3 block public access (CIS AWS Foundations): Enable S3 block public access to prevent public access to S3 buckets and objects. URL: [https://d0.awsstatic.com/whitepapers/compliance/CIS_Amazon_Web_Services_Foundations_Benchmark.pdf](https://d0.awsstatic.com/whitepapers/compliance/CIS_Amazon_Web_Services_Foundations_Benchmark.pdf)
+
+Enable S3 object lock (CIS AWS Foundations): Enable S3 object lock to prevent object deletion or modification for a specified retention period. URL: [https://d0.awsstatic.com/whitepapers/compliance/CIS_Amazon_Web_Services_Foundations_Benchmark.pdf](https://d0.awsstatic.com/whitepapers/compliance/CIS_Amazon_Web_Services_Foundations_Benchmark.pdf)
+
+Enable S3 default encryption (CIS AWS Foundations): Enable default encryption on S3 buckets to ensure that all objects are encrypted. URL: [https://d0.awsstatic.com/whitepapers/compliance/CIS_Amazon_Web_Services_Foundations_Benchmark.pdf](https://d0.awsstatic.com/whitepapers/compliance/CIS_Amazon_Web_Services_Foundations_Benchmark.pdf)
+
+Enable access logging for S3 buckets (CIS AWS Foundations): Enable access logging for S3 buckets to capture detailed access logs for tracking and analysis. URL: [https://d0.awsstatic.com/whitepapers/compliance/CIS_Amazon_Web_Services_Foundations_Benchmark.pdf](https://d0.awsstatic.com/whitepapers/compliance/CIS_Amazon_Web_Services_Foundations_Benchmark.pdf)

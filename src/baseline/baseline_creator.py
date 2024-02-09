@@ -10,6 +10,7 @@ from utils.thread_manager import OpenAIThreadManager
 from utils.assistant_manager import OpenAIAssistantManager
 from utils.runs_manager import OpenAIRunsManager
 from utils.text_replacer import replace_text_in_file
+from utils.files_manager import OpenAIFilesManager
 
 
 # Carrega as variáveis de ambiente do arquivo .env
@@ -18,7 +19,7 @@ load_dotenv()
 # Constantes
 API_KEY = os.getenv("OPENAI_API_KEY")
 BASELINESECURITYEXPERT_ID = os.getenv("BASELINESECURITYEXPERT_ID")
-SECURITYGUARDIANAI = os.getenv("SECURITYGUARDIANAI_ID")
+SECURITYGUARDIANAI_ID = os.getenv("SECURITYGUARDIANAI_ID")
 PRODUCT_NAME_PLACEHOLDER = "PRODUCT_NAME"
 CONTROL_NAME_PLACEHOLDER = "CONTROL_NAME"
 DATA_RAW_DIR = "data/raw"
@@ -28,6 +29,7 @@ GET_BASELINE_CONTROLS_PROMPT = 'prompts/get_baseline_controls.txt'
 BASELINE_AUDIT_PROMPT = 'prompts/get_baseline_audit.txt'
 BASELINE_REMEDIATION_PROMPT = 'prompts/get_baseline_remediation.txt'
 BASELINE_REFERENCE_PROMPT = 'prompts/get_baseline_reference.txt'
+BASELINE_CHECK_CONTROLS = 'prompts/baseline_check_controls.txt'
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 TEMPLATE_DIR = 'templates'
 
@@ -93,10 +95,6 @@ def save_data(data, ticket, technology, base_dir=DATA_BASELINE_DIR):
         json.dump(data, f, indent=4)
     print(f"Data saved to {file_path}")
 
-import pandas as pd
-import re
-from jinja2 import Environment, FileSystemLoader
-
 def generate_html_from_processed_controls(processed_controls: dict, template_dir: str, output_file_path: str) -> None:
     """
     Gera um arquivo HTML a partir de dados de controle fornecidos como um dicionário JSON,
@@ -149,9 +147,9 @@ async def create_baseline(technology, ticket):
     load_dotenv()
 
     """Main function to create a baseline for a given technology."""
-    thread_manager, runs_manager = OpenAIThreadManager(API_KEY), OpenAIRunsManager(API_KEY)
+    thread_manager, runs_manager, file_manager, assistant_manager = OpenAIThreadManager(API_KEY), OpenAIRunsManager(API_KEY), OpenAIFilesManager(API_KEY), OpenAIAssistantManager(API_KEY)
     thread_id = await thread_manager.create_thread()
-    controls_raw = await create_and_process_run(thread_manager, thread_id, runs_manager, BASELINESECURITYEXPERT_ID, GET_BASELINE_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology, "Controls")
+    controls_raw = await create_and_process_run(thread_manager, thread_id, runs_manager, BASELINESECURITYEXPERT_ID, GET_BASELINE_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology, "Review")
     controls_extracted = extract_response(controls_raw)
 
     print("##################################################################")
@@ -165,8 +163,29 @@ async def create_baseline(technology, ticket):
     file_path = os.path.join(DATA_STRUCTURED_DIR, f"{ticket}_{technology}_{timestamp}.txt")
     with open(file_path, 'w') as file:
         file.write(controls_extracted)
-    
     print(f"Data saved to {file_path}")
+
+
+    # Carrega o arquivo para a OpenAI
+    response = await file_manager.upload_file(file_path)
+    print (response)
+
+    file_id = response.id
+    print(f"File ID: {file_id}")
+
+    assistant_manager.create_assistant_file(SECURITYGUARDIANAI_ID, file_id)
+
+    new_controls = await create_and_process_run(thread_manager, thread_id, runs_manager, SECURITYGUARDIANAI_ID, BASELINE_CHECK_CONTROLS, PRODUCT_NAME_PLACEHOLDER, technology, "Controls")
+
+
+    print("##################################################################")
+    print(new_controls)
+    print("##################################################################")
+
+
+
+    # Etapa 2 - Comparar resultado com arquivos ja anexados ao assistente
+
 
     # processed_controls = await process_control_blocks(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted)
     # print(processed_controls)
