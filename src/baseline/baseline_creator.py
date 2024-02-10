@@ -41,21 +41,18 @@ async def get_controls(ticket, technology):
     print(f"Getting controls for: {technology}")
     await thread_manager.create_message(thread_id, prompt_updated)
     run_id = await runs_manager.create_run(thread_id, BASELINESECURITYEXPERT_ID)
-    controls_raw = await runs_manager.process_run(thread_id, run_id)
+    await runs_manager.process_run(thread_id, run_id)
     print(f"Controls obtained for: {technology}!")
-    save_data(controls_raw, ticket, technology, DATA_RAW_DIR)
     return thread_id
 
 async def check_controls(thread_id, ticket, technology):
-    thread_id = await thread_manager.create_thread()
-    prompt_updated = replace_text_in_file(BASELINE_GET_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology)
+    prompt_updated = replace_text_in_file(BASELINE_CHECK_CONTROLS, PRODUCT_NAME_PLACEHOLDER, technology)
     print("Reviewing controls")
     await thread_manager.create_message(thread_id, prompt_updated)
-    run_id = await runs_manager.create_run(thread_id, BASELINESECURITYEXPERT_ID)
-    Review_raw = await runs_manager.process_run(thread_id, run_id)
+    run_id = await runs_manager.create_run(thread_id, SECURITYGUARDIANAI_ID)
+    thread_data = await runs_manager.process_run(thread_id, run_id)
     print("Revised controls!")
-    save_data(Review_raw, ticket, technology, DATA_RAW_DIR)
-    return thread_id
+    return thread_data
 
 def save_data(data, ticket, technology, base_dir=DATA_DIR):
     try:
@@ -68,4 +65,5 @@ def save_data(data, ticket, technology, base_dir=DATA_DIR):
 
 async def create_baseline(technology, ticket):
     thread_id = await get_controls(ticket, technology)
-    await check_controls(thread_id, ticket, technology)
+    thread_data = await check_controls(thread_id, ticket, technology)
+    save_data(thread_data, ticket, technology, DATA_RAW_DIR)
