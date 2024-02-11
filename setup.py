@@ -6,7 +6,7 @@ from utils.files_manager import OpenAIFilesManager
 
 
 
-api_key = "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"
+api_key = None
 assistant_manager = None
 file_manager = None
 assistants_data = {}
