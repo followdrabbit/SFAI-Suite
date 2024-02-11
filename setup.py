@@ -108,6 +108,7 @@ async def clear_existing_configs():
 
 async def request_openai_api_key_to_user():
     global api_key
+    print("")
     try:
         while True:
             content = getpass.getpass("Enter the API key value (must start with 'sk-'): ")
@@ -146,8 +147,6 @@ async def upload_lkb_files_and_link_with_assistants():
             print("No files has been found")
     except Exception as e:
         print(f"Oops! Something went wrong. Here's the error message: {e}.")
-
-
 
 
 async def main():
