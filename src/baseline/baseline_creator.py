@@ -32,27 +32,31 @@ thread_manager = OpenAIThreadManager(API_KEY)
 runs_manager = OpenAIRunsManager(API_KEY)
 file_manager = OpenAIFilesManager(API_KEY)
 assistant_manager = OpenAIAssistantManager(API_KEY)
+thread_id = None  # Variável global declarada fora das funções
+chat_data = None  # Variável global declarada fora das funções
 
+async def create_and_process_run(thread_id, prompt_source, placeholder, technology, assistant_id):
+    prompt_updated = replace_text_in_file(prompt_source, placeholder, technology)
+    await thread_manager.create_message(thread_id, prompt_updated)
+    run_id = await runs_manager.create_run(thread_id, assistant_id)
+    data = await runs_manager.process_run(thread_id, run_id)
+    return data
 
-
-async def get_controls(ticket, technology):
+async def get_controls(technology):
+    global thread_id
     thread_id = await thread_manager.create_thread()
-    prompt_updated = replace_text_in_file(BASELINE_GET_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology)
-    print(f"Getting controls for: {technology}")
-    await thread_manager.create_message(thread_id, prompt_updated)
-    run_id = await runs_manager.create_run(thread_id, BASELINESECURITYEXPERT_ID)
-    await runs_manager.process_run(thread_id, run_id)
-    print(f"Controls obtained for: {technology}!")
-    return thread_id
+    print("######################################################")
+    print (f"            Getting controls for {technology}")
+    print("######################################################")
+    await create_and_process_run(thread_id, BASELINE_GET_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology, BASELINESECURITYEXPERT_ID)
 
-async def check_controls(thread_id, ticket, technology):
-    prompt_updated = replace_text_in_file(BASELINE_CHECK_CONTROLS, PRODUCT_NAME_PLACEHOLDER, technology)
-    print("Reviewing controls")
-    await thread_manager.create_message(thread_id, prompt_updated)
-    run_id = await runs_manager.create_run(thread_id, SECURITYGUARDIANAI_ID)
-    thread_data = await runs_manager.process_run(thread_id, run_id)
-    print("Revised controls!")
-    return thread_data
+async def check_controls(ticket, technology):
+    global thread_id
+    global chat_data
+    print("######################################################")
+    print ("                Reviewing controls")
+    print("######################################################")
+    chat_data = await create_and_process_run(thread_id, BASELINE_CHECK_CONTROLS, PRODUCT_NAME_PLACEHOLDER, technology, SECURITYGUARDIANAI_ID)
 
 def save_data(data, ticket, technology, base_dir=DATA_DIR):
     try:
@@ -64,6 +68,6 @@ def save_data(data, ticket, technology, base_dir=DATA_DIR):
         print (e)
 
 async def create_baseline(technology, ticket):
-    thread_id = await get_controls(ticket, technology)
-    thread_data = await check_controls(thread_id, ticket, technology)
-    save_data(thread_data, ticket, technology, DATA_RAW_DIR)
+    await get_controls(technology)
+    await check_controls(ticket, technology)
+    save_data(chat_data, ticket, technology, DATA_RAW_DIR)

@@ -26,12 +26,8 @@ class OpenAIAssistantManager:
 
     async def delete_assistant(self, assistant_id: str):
         # Delete an assistant using its ID.
-        
         try:
-            await self.client.beta.assistants.delete(assistant_id)
-            print(f"Assistant deleted successfully.")
-            return
-
+            return await self.client.beta.assistants.delete(assistant_id)
         except openai.NotFoundError as e:
             print(f"Error deleting assistant {assistant_id}: {e}")
 
