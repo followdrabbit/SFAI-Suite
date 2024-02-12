@@ -4,7 +4,7 @@ import argparse
 from dotenv import load_dotenv
 import openai
 from utils.assistant_manager import OpenAIAssistantManager
-from src.baseline.baseline_creator import create_baseline
+from src.baseline.SafeGuardAI import create_baseline
 
 async def main():
 

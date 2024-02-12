@@ -10,7 +10,7 @@ api_key = None
 assistant_manager = None
 file_manager = None
 assistants_data = {}
-base_dir = "./data/lkb"
+base_dir = "./data/lkb/s3"
 
 # Prepare data to write to .env file
 assistants_info = {
@@ -42,7 +42,7 @@ async def create_new_assistants(assistant_manager, assistants_info):
             assistant_info["model"]
         )
         assistants_data[assistant_name] = assistant_id
-        print(f"----> Done! The assistant '{assistant_name}' is set up and ready to assist with your security needs.")
+        print(f"----> Created assistant: {assistant_name} withID: {assistant_id}")
 
 
 
@@ -54,7 +54,7 @@ def save_data_to_env_file(api_key, assistants_data):
         file.write(f"OPENAI_API_KEY={api_key}\n")
         for assistant_name, assistant_id in assistants_data.items():
             file.write(f"{assistant_name.upper().replace(' ', '_')}_ID={assistant_id}\n")
-    print("----> All settings have been successfully saved. You're all set to go!")
+    print("********** All settings have been successfully saved. You're all set to go! **********")
 
 
 async def deletes_existent_env_file():
@@ -62,7 +62,7 @@ async def deletes_existent_env_file():
     print("#### Checking for an existing configuration file... ####")
     if os.path.exists(".env"):
         os.remove(".env")
-        print("----> The existing .env file has been successfully deleted.")
+        print("----> Delete file: .env")
     else:
         print("----> No .env file has been found")
 
@@ -75,11 +75,12 @@ async def deletes_existents_assistants():
         if response:
             for assistant in response.data:
                 await assistant_manager.delete_assistant(assistant.id)
-                print (f"----> Asssistant: {assistant.name} withID: {assistant.id} has been deleted successfully!")
+                print (f"----> Deleted asssistant: {assistant.name} withID: {assistant.id}")
         else:
             print()
     except Exception as e:
         print(f"Oops! Something went wrong. Here's the error message: {e}.")
+        exit(1)
 
 
 async def deletes_existents_files():
@@ -90,12 +91,13 @@ async def deletes_existents_files():
         if files:
             for file_object in files:
                 await file_manager.delete_file(file_object.id)
-                print(f"----> File: {file_object.filename} with ID: {file_object.id} has been deleted successfully!")
+                print(f"----> Deleted file: {file_object.filename} with ID: {file_object.id}")
 
         else:
             print("No files has been found")
     except Exception as e:
         print(f"Oops! Something went wrong. Here's the error message: {e}.")
+        exit(1)
 
 async def clear_existing_configs():
     try:
@@ -105,6 +107,7 @@ async def clear_existing_configs():
 
     except Exception as e:
         print(f"Oops! Something went wrong. Here's the error message: {e}.")
+        exit(1)
 
 async def request_openai_api_key_to_user():
     global api_key
@@ -119,6 +122,7 @@ async def request_openai_api_key_to_user():
                 print("Error: API key must start with 'sk-'. Please try again.")
     except Exception as e:
         print(f"Oops! Something went wrong. Here's the error message: {e}.")
+        exit(1)
 
 async def Instantiate_managers():
     global assistant_manager
@@ -127,7 +131,8 @@ async def Instantiate_managers():
         assistant_manager = OpenAIAssistantManager(api_key) # Create an instance of OpenAIAssistantManager
         file_manager = OpenAIFilesManager(api_key) # Create an instance of OpenAIFilesManager
     except Exception as e:
-        print (f"Error {e}")
+        print(f"Oops! Something went wrong. Here's the error message: {e}.")
+        exit(1)
 
 async def upload_lkb_files_and_link_with_assistants():
     try:
@@ -142,11 +147,12 @@ async def upload_lkb_files_and_link_with_assistants():
                     for assistant_name, assistant_id in assistants_data.items():
                         if assistant_name == "SecurityGuardianAI":
                             await assistant_manager.create_assistant_file(assistant_id, response.id)
-                            print(f"----> File: {filename} uploaded and associated with SecurityGuardianAI")
+                            print(f"----> Uploaded file: {filename} and associated with assistant SecurityGuardianAI")
         else:
             print("No files has been found")
     except Exception as e:
         print(f"Oops! Something went wrong. Here's the error message: {e}.")
+        exit(1)
 
 
 async def main():
