@@ -53,9 +53,9 @@ async def get_controls(technology):
 async def check_controls(ticket, technology):
     global thread_id
     global chat_data
-    print("######################################################")
-    print ("                Reviewing controls")
-    print("######################################################")
+    print("#######################################################")
+    print("#       Checking controls and creating baseline       #")
+    print("#######################################################")
     chat_data = await create_and_process_run(thread_id, BASELINE_CHECK_CONTROLS, PRODUCT_NAME_PLACEHOLDER, technology, SECURITYGUARDIANAI_ID)
 
 def save_data(data, ticket, technology, base_dir=DATA_DIR):

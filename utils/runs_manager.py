@@ -60,7 +60,7 @@ class OpenAIRunsManager:
                 extra_body: Add additional JSON properties to the request
                 timeout: Override the client-level default timeout for this request, in seconds
             """
-            return self.client.beta.threads.runs.list(
+            return await self.client.beta.threads.runs.list(
                     thread_id=thread_id, 
                     limit=limit, 
                     order=order, 
@@ -85,7 +85,7 @@ class OpenAIRunsManager:
                 extra_body: Add additional JSON properties to the request
                 timeout: Override the client-level default timeout for this request, in seconds
             """
-            return self.client.beta.threads.runs.cancel(
+            return await self.client.beta.threads.runs.cancel(
                     thread_id=thread_id,
                     run_id=run_id,
                     extra_headers=extra_headers,
@@ -103,7 +103,11 @@ class OpenAIRunsManager:
             while True:
                 run = openai.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
 
-                if run.status == "completed":
+                if run.status == "in_progress":
+                    print(f"Run status.............. {run.status}")
+                    await asyncio.sleep(5)  # Wait for 5 seconds before checking the status again
+
+                elif run.status == "completed":
                     print(f"Run status.............. {run.status}")
                     messages = openai.beta.threads.messages.list(thread_id=thread_id)
 
@@ -113,23 +117,21 @@ class OpenAIRunsManager:
                         msg = {"role": message.role, "message": message.content[0].text.value}
                         result_messages.append(msg)
                     return result_messages
-                
-                elif run.status == "requires_action":
-                    print("The run requires action.")
-                    required_actions_json = run.required_action.submit_tool_outputs.model_dump_json(indent=4)
-                    print(f"Required Actions: {required_actions_json}")
-                    print("Cancelling run")
-                    self.cancel_run(thread_id, run_id)
-                    return None
 
                 elif run.status == "failed":
                     print("The run failed.")
                     print(f"Error: {json.dumps(str(run), indent=4)}")
                     return None
                 
+                elif run.status == "expired":
+                    print("The run expired.")
+                    print(f"Error: {json.dumps(str(run), indent=4)}")
+                    return None
+
                 else:
-                    print(f"Run status.............. {run.status}")
-                    await asyncio.sleep(5)  # Wait for 5 seconds before checking the status again
+                    print("Unexpected run status")
+                    print(f"Error: {json.dumps(str(run), indent=4)}")
+                    return None
 
         except Exception as e:
             print(f"Error checking the run status: {e}")
@@ -152,6 +154,12 @@ async def main():
     # Utilizando a função retrieve_run
     #run_info = await run_manager.retrieve_run(thread_id, run_id)
     #print(run_info)
+
+
+    # thread_id = "thread_gaMOfhbZOySAlkyPXQP63AzH"
+    # run_id = "run_vqptyJ3gmUebcQI8xYjWgqXY"
+    # await run_manager.cancel_run(thread_id, run_id)
+    
 
 # Entry point of the script
 if __name__ == "__main__":

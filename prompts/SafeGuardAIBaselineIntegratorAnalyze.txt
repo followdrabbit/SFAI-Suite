@@ -20,7 +20,6 @@ Conduct a detailed analysis to create a security baseline for PRODUCT_NAME. Inte
 Template for Security Baseline Creation:
 - **Control:** List the security control.
 - **Rationale:** Explain why this control is important.
-- **Risk Information:** Describe risks this control mitigates and classify these risks.
-- **Reference:** Cite documents recommending this control.
+- **References:** Cite references informed in this thread and all documents that contains recommendations for this control.
 
 Ensure the AWS infrastructure configuration aligns with the best security practices and internal policies by identifying and mitigating potential risks. Follow the template and instructions closely to generate a comprehensive analysis and report.
