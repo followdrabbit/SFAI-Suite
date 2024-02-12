@@ -25,8 +25,8 @@ PRODUCT_NAME_PLACEHOLDER = "PRODUCT_NAME"
 CONTROL_NAME_PLACEHOLDER = "CONTROL_NAME"
 DATA_RAW_DIR = "data/raw"
 DATA_DIR = "data"
-BASELINE_GET_CONTROLS_PROMPT = 'prompts/SafeGuardAIBaselineBuilderInitiate.txt'
-BASELINE_CHECK_CONTROLS = 'prompts/SafeGuardAIBaselineIntegratorAnalyze.txt'
+GET_CONTROLS_PROMPT = 'prompts/SafeGuardAIBaselineBuilderInitiate.txt'
+CHECK_CONTROLS_PROMPT = 'prompts/SafeGuardAIBaselineIntegratorAnalyze.txt'
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 thread_manager = OpenAIThreadManager(API_KEY)
 runs_manager = OpenAIRunsManager(API_KEY)
@@ -48,7 +48,7 @@ async def get_controls(technology):
     print("######################################################")
     print (f"            Getting controls for {technology}")
     print("######################################################")
-    await create_and_process_run(thread_id, BASELINE_GET_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology, BASELINESECURITYEXPERT_ID)
+    await create_and_process_run(thread_id, GET_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology, BASELINESECURITYEXPERT_ID)
 
 async def check_controls(ticket, technology):
     global thread_id
@@ -56,7 +56,7 @@ async def check_controls(ticket, technology):
     print("#######################################################")
     print("#       Checking controls and creating baseline       #")
     print("#######################################################")
-    chat_data = await create_and_process_run(thread_id, BASELINE_CHECK_CONTROLS, PRODUCT_NAME_PLACEHOLDER, technology, SECURITYGUARDIANAI_ID)
+    chat_data = await create_and_process_run(thread_id, CHECK_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology, SECURITYGUARDIANAI_ID)
 
 def save_data(data, ticket, technology, base_dir=DATA_DIR):
     try:
