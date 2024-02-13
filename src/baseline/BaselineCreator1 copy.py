@@ -10,28 +10,24 @@ from utils.thread_manager import OpenAIThreadManager
 from utils.assistant_manager import OpenAIAssistantManager
 from utils.runs_manager import OpenAIRunsManager
 from utils.text_replacer import replace_text_in_file
-from utils.files_manager import OpenAIFilesManager
 
 
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
 
 # Constantes
-API_KEY = os.getenv("OPENAI_API_KEY")
-BASELINESECURITYEXPERT_ID = os.getenv("BASELINESECURITYEXPERT_ID")
-SECURITYGUARDIANAI_ID = os.getenv("SECURITYGUARDIANAI_ID")
 PRODUCT_NAME_PLACEHOLDER = "PRODUCT_NAME"
 CONTROL_NAME_PLACEHOLDER = "CONTROL_NAME"
-DATA_RAW_DIR = "data/raw"
 DATA_STRUCTURED_DIR = "data/structured/"
-DATA_BASELINE_DIR = "data/baseline"
-GET_BASELINE_CONTROLS_PROMPT = 'prompts/get_baseline_controls.txt'
-BASELINE_AUDIT_PROMPT = 'prompts/get_baseline_audit.txt'
-BASELINE_REMEDIATION_PROMPT = 'prompts/get_baseline_remediation.txt'
-BASELINE_REFERENCE_PROMPT = 'prompts/get_baseline_reference.txt'
-BASELINE_CHECK_CONTROLS = 'prompts/baseline_check_controls.txt'
+GET_BASELINE_CONTROLS_PROMPT = 'prompts/BaselineCreatorGetControls.txt'
+BASELINE_AUDIT_PROMPT = 'prompts/BaselineCreatorGetAudit.txt'
+BASELINE_REMEDIATION_PROMPT = 'prompts/BaselineCreatorGetRemediation.txt'
+BASELINE_REFERENCE_PROMPT = 'prompts/BaselineCreatorGetReference.txt'
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 TEMPLATE_DIR = 'templates'
+api_key = os.getenv("OPENAI_API_KEY")
+BASELINESECURITYEXPERT_ID = os.getenv("BASELINESECURITYEXPERT_ID")
+SECURITYGUARDIANAI_ID = os.getenv("SECURITYGUARDIANAI_ID")
 
 
 
@@ -50,6 +46,7 @@ def extract_response(result_raw):
         if item.get('role') == 'assistant':
             messages.append(item.get('message', ''))
     return " ".join(messages)
+
 
 async def process_control_blocks(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted):
     processed_controls = {'Controls': {}, 'Audits': {}, 'Remediations': {}, 'References': {}}
@@ -87,7 +84,7 @@ async def process_control_blocks(thread_manager, thread_id, runs_manager, assist
     return processed_controls
 
 
-def save_data(data, ticket, technology, base_dir=DATA_BASELINE_DIR):
+def save_data(data, ticket, technology, base_dir=DATA_STRUCTURED_DIR):
     if not os.path.exists(base_dir):
         os.makedirs(base_dir)
     file_path = os.path.join(base_dir, f"{ticket}_{technology}_{timestamp}.json")
@@ -95,137 +92,74 @@ def save_data(data, ticket, technology, base_dir=DATA_BASELINE_DIR):
         json.dump(data, f, indent=4)
     print(f"Data saved to {file_path}")
 
+import re
+from jinja2 import Environment, FileSystemLoader
+import pandas as pd
+
+from jinja2 import Environment, FileSystemLoader
+
 def generate_html_from_processed_controls(processed_controls: dict, template_dir: str, output_file_path: str) -> None:
     """
     Gera um arquivo HTML a partir de dados de controle fornecidos como um dicionário JSON,
     utilizando um template HTML do Jinja2.
-
-    Args:
-        processed_controls (dict): Dicionário contendo os dados de controle, incluindo 'Controls', 'Audits', e 'Remediations'.
-        template_dir (str): O diretório onde o template Jinja2 está localizado.
-        output_file_path (str): O caminho para o arquivo HTML de saída que será gerado.
-
-    Returns:
-        None: A função não retorna nada, mas gera um arquivo HTML.
     """
     rows = []
-    for control_id, control_text in processed_controls.get('Controls', {}).items():
-        control_match = re.search(r"CONTROL: (.*?)\s*(RATIONALE:|$)", control_text)
-        rationale_match = re.search(r"RATIONALE: (.*?)\s*(REFERENCE:|$)", control_text)
+    for control_id, control_info in processed_controls['Controls'].items():
+        control_parts = control_info.split(';')
+        control_name, rationale = control_parts[0], ';'.join(control_parts[1:]) if len(control_parts) > 1 else "N/A"
 
-        control = control_match.group(1).strip() if control_match else "N/A"
-        rationale = rationale_match.group(1).strip() if rationale_match else "N/A"
-        audit = processed_controls['Audits'].get(control_id.replace('Control', 'Audit'), "N/A")
-        remediation = processed_controls['Remediations'].get(control_id.replace('Control', 'Remediation'), "N/A")
+        # Constrói as chaves para buscar Audit, Remediation e Reference usando o sufixo do control_id
+        suffix = control_id[7:]  # Assume que o prefixo 'Control' tem 7 caracteres e obtém o sufixo numérico
+        audit = processed_controls['Audits'].get(f'Audit{suffix}', 'N/A')
+        remediation = processed_controls['Remediations'].get(f'Remediation{suffix}', 'N/A')
+        reference = processed_controls['References'].get(f'Reference{suffix}', 'N/A')
 
         rows.append({
             'ControlID': control_id,
-            'Control': control,
+            'Control': control_name,
             'Rationale': rationale,
             'Audit': audit,
-            'Remediation': remediation
+            'Remediation': remediation,
+            'Reference': reference
         })
 
-    # Cria o DataFrame
-    df = pd.DataFrame(rows)
-
-    # Configura o Jinja2 para carregar o template
+    # Carrega o template e gera o HTML
     env = Environment(loader=FileSystemLoader(template_dir))
     template = env.get_template('template_baseline.html')
+    html_output = template.render(rows=rows)
 
-    # Renderiza o template com os dados
-    html_output = template.render(rows=df.to_dict(orient='records'))
-
-    # Salva o HTML renderizado em um arquivo
+    # Salva o HTML no arquivo especificado
     with open(output_file_path, 'w') as file:
         file.write(html_output)
 
     print(f"HTML gerado com sucesso e salvo em '{output_file_path}'.")
 
-async def create_baseline(technology, ticket):
-    # Carrega as variáveis de ambiente do arquivo .env apenas uma vez, ao importar o módulo
-    load_dotenv()
 
+
+
+async def create_baseline(technology, ticket):
     """Main function to create a baseline for a given technology."""
-    thread_manager, runs_manager, file_manager, assistant_manager = OpenAIThreadManager(API_KEY), OpenAIRunsManager(API_KEY), OpenAIFilesManager(API_KEY), OpenAIAssistantManager(API_KEY)
+    assistant_manager = OpenAIAssistantManager(api_key)
+    assistant_id = BASELINESECURITYEXPERT_ID
+    if assistant_id is None:
+        print("Assistant 'Cloud Security Expert' not found.")
+        return
+
+    thread_manager, runs_manager = OpenAIThreadManager(api_key), OpenAIRunsManager(api_key)
     thread_id = await thread_manager.create_thread()
-    controls_raw = await create_and_process_run(thread_manager, thread_id, runs_manager, BASELINESECURITYEXPERT_ID, GET_BASELINE_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology, "Review")
+    controls_raw = await create_and_process_run(thread_manager, thread_id, runs_manager, assistant_id, GET_BASELINE_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology, "Controls")
     controls_extracted = extract_response(controls_raw)
 
     print("##################################################################")
     print(controls_extracted)
     print("##################################################################")
 
-    # save controls Raw Json
-    save_data(controls_raw, ticket, technology, DATA_RAW_DIR)
-
-    # save extracted controls txt
-    file_path = os.path.join(DATA_STRUCTURED_DIR, f"{ticket}_{technology}_{timestamp}.txt")
-    with open(file_path, 'w') as file:
-        file.write(controls_extracted)
-    print(f"Data saved to {file_path}")
-
-
-    # Carrega o arquivo para a OpenAI
-    response = await file_manager.upload_file(file_path)
-    print (response)
-
-    file_id = response.id
-    print(f"File ID: {file_id}")
-
-    assistant_manager.create_assistant_file(SECURITYGUARDIANAI_ID, file_id)
-
-    new_controls = await create_and_process_run(thread_manager, thread_id, runs_manager, SECURITYGUARDIANAI_ID, BASELINE_CHECK_CONTROLS, PRODUCT_NAME_PLACEHOLDER, technology, "Controls")
-
-
+    processed_controls = await process_control_blocks(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted)
     print("##################################################################")
-    print(new_controls)
+    print(processed_controls)
     print("##################################################################")
 
+    save_data(processed_controls, ticket, technology)
 
-
-    # Etapa 2 - Comparar resultado com arquivos ja anexados ao assistente
-
-
-    # processed_controls = await process_control_blocks(thread_manager, thread_id, runs_manager, assistant_id, controls_extracted)
-    # print(processed_controls)
-
-    # save_data(processed_controls, ticket, technology)
-
-    # output_file_path = f'data/baseline/{ticket}_{technology}_{timestamp}.html'
-    # generate_html_from_processed_controls(processed_controls, TEMPLATE_DIR, output_file_path)
-
-    # # Preparando os dados para o DataFrame
-    # rows = []
-    # for control_id, control_text in processed_controls['Controls'].items():
-    #     control_info = control_text.split(". ")
-    #     control = control_info[0].split("CONTROL: ")[1]
-    #     rationale = control_info[1].split("RATIONALE: ")[1]
-    #     audit = processed_controls['Audits'][control_id.replace('Control', 'Audit')]
-    #     remediation = processed_controls['Remediations'][control_id.replace('Control', 'Remediation')]
-    #     rows.append({
-    #         'ControlID': control_id,
-    #         'Control': control,
-    #         'Rational': rationale,
-    #         'Audit': audit,
-    #         'Remediation': remediation
-    #     })
-
-    # # Convertendo para DataFrame
-    # df = pd.DataFrame(rows)
-
-    # # Configuração do Jinja2 para carregar o template do diretório 'templates'
-    # env = Environment(loader=FileSystemLoader('templates'))
-
-    # # Carregando o template chamado 'template_baseline.html'
-    # template = env.get_template('template_baseline.html')
-
-    # # Renderizando o template com os dados do DataFrame
-    # html_output = template.render(rows=df.to_dict(orient='records'))
-
-    # # Salvando o HTML renderizado em um arquivo
-    # output_file_path = f'data/baseline/{ticket}_{technology}_{timestamp}.html'
-    # with open(output_file_path, 'w') as file:
-    #     file.write(html_output)
-
-    # print(f"HTML gerado com sucesso e salvo em '{output_file_path}'.")
+    output_file_path = f'data/baselines/{ticket}_{technology}_{timestamp}.html'
+    generate_html_from_processed_controls(processed_controls, TEMPLATE_DIR, output_file_path)

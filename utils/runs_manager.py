@@ -103,6 +103,10 @@ class OpenAIRunsManager:
             while True:
                 run = openai.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
 
+                if run.status == "queued":
+                    print(f"Run status.............. {run.status}")
+                    await asyncio.sleep(5)  # Wait for 5 seconds before checking the status again
+
                 if run.status == "in_progress":
                     print(f"Run status.............. {run.status}")
                     await asyncio.sleep(5)  # Wait for 5 seconds before checking the status again
@@ -121,17 +125,17 @@ class OpenAIRunsManager:
                 elif run.status == "failed":
                     print("The run failed.")
                     print(f"Error: {json.dumps(str(run), indent=4)}")
-                    return None
+                    exit(1)
                 
                 elif run.status == "expired":
                     print("The run expired.")
                     print(f"Error: {json.dumps(str(run), indent=4)}")
-                    return None
+                    exit(1)
 
                 else:
                     print("Unexpected run status")
                     print(f"Error: {json.dumps(str(run), indent=4)}")
-                    return None
+                    exit(1)
 
         except Exception as e:
             print(f"Error checking the run status: {e}")

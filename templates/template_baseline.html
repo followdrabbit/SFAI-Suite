@@ -3,47 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Summary Table</title>
+    <title>Baseline Report</title>
     <style>
-        body {
-            font-family: Verdana, sans-serif; /* Aplicando a fonte Verdana */
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid black; /* Borda sólida para a tabela */
-        }
-        th, td {
-            border: 1px solid black; /* Borda sólida para as células */
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-            color: white; /* Cor do texto dos cabeçalhos */
-        }
-        h1 {
-            font-weight: bold; /* Negrito para o título H1 */
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin: 5px 0;
-        }
-        /* Restante do estilo... */
+        body { font-family: Arial, sans-serif; }
+        h2 { color: navy; }
+        ul { list-style-type: none; }
+        li { margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <h1>Controls</h1>
+    <h1>Baseline Security Controls Report</h1>
     {% for row in rows %}
-        <h2>{{ row['Control'] }}</h2>
+        <h2>Control: {{ row.Control }}</h2>
         <ul>
-            <li>Control ID: {{ row['ControlID'] }}</li>
-            <li>Rationale: {{ row['Rationale'] }}</li>
-            <li>Audit: {{ row['Audit'] }}</li>
-            <li>Remediation: {{ row['Remediation'] }}</li>
+            <li>Control ID: {{ row.ControlID }}</li>
+            <li>Rationale: {{ row.Rationale }}</li>
+            <li>Audit: {{ row.Audit }}</li>
+            <li>Remediation: {{ row.Remediation }}</li>
+            <li>References: {{ row.Reference }}</li>
         </ul>
     {% endfor %}
 </body>
