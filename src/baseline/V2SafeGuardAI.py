@@ -60,7 +60,7 @@ async def check_controls(ticket, technology):
 
 def save_data(data, ticket, technology, base_dir=DATA_DIR):
     try:
-        file_path = os.path.join(base_dir, f"{ticket}_{technology}_{timestamp}.json")
+        file_path = os.path.join(base_dir, f"V2SafeGuardAI_{ticket}_{technology}_{timestamp}.json")
         with open(file_path, 'w') as f:
             json.dump(data, f, indent=4)
         print(f"Data saved to {file_path}")

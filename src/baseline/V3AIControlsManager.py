@@ -25,8 +25,8 @@ PRODUCT_NAME_PLACEHOLDER = "PRODUCT_NAME"
 CONTROL_NAME_PLACEHOLDER = "CONTROL_NAME"
 DATA_RAW_DIR = "data/raw"
 DATA_DIR = "data"
-GET_CONTROLS_PROMPT = 'prompts/SafeGuardAIBaselineBuilderInitiate.txt'
-CHECK_CONTROLS_PROMPT = 'prompts/SafeGuardAIBaselineIntegratorAnalyze.txt'
+GET_CONTROLS_PROMPT = 'prompts/AIControlsManagerBaselineBuilderInitiate.txt'
+CHECK_CONTROLS_PROMPT = 'prompts/AIControlsManagerBaselineIntegratorAnalyze.txt'
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 thread_manager = OpenAIThreadManager(API_KEY)
 runs_manager = OpenAIRunsManager(API_KEY)
@@ -58,9 +58,17 @@ async def check_controls(ticket, technology):
     print("#######################################################")
     chat_data = await create_and_process_run(thread_id, CHECK_CONTROLS_PROMPT, PRODUCT_NAME_PLACEHOLDER, technology, SECURITYGUARDIANAI_ID)
 
+def extract_response(result_raw):
+    """Extracts assistant messages from the raw response."""
+    messages = []
+    for item in (item for sublist in result_raw for item in (sublist if isinstance(sublist, list) else [sublist])):
+        if item.get('role') == 'assistant':
+            messages.append(item.get('message', ''))
+    return " ".join(messages)
+
 def save_data(data, ticket, technology, base_dir=DATA_DIR):
     try:
-        file_path = os.path.join(base_dir, f"{ticket}_{technology}_{timestamp}.json")
+        file_path = os.path.join(base_dir, f"V3AIControlsManager_{ticket}_{technology}_{timestamp}.json")
         with open(file_path, 'w') as f:
             json.dump(data, f, indent=4)
         print(f"Data saved to {file_path}")
@@ -70,4 +78,18 @@ def save_data(data, ticket, technology, base_dir=DATA_DIR):
 async def create_baseline(technology, ticket):
     await get_controls(technology)
     await check_controls(ticket, technology)
+    
+    controls_extracted = extract_response(chat_data)
+
+    print("##################################################################")
+    print(controls_extracted)
+    print("##################################################################")
+
     save_data(chat_data, ticket, technology, DATA_RAW_DIR)
+
+
+'''
+TO DO
+- [ ] Gerar baseline usando o template
+- [ ] Gerar Relatório com considerações adicionais
+'''

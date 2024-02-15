@@ -4,7 +4,7 @@ import argparse
 from dotenv import load_dotenv
 import openai
 from utils.assistant_manager import OpenAIAssistantManager
-from src.baseline.BaselineCreatorV1 import create_baseline
+from src.baseline.V1BaselineCreator import create_baseline
 
 async def main():
 
