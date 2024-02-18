@@ -15,7 +15,6 @@ class OpenAIThreadManager:
     # Asynchronous method to create a new thread
     async def create_thread(self, messages: Optional[list] = None, metadata: Optional[dict] = None):
         thread = await self.client.beta.threads.create()
-        print(f"New thread created with ID: {thread.id}")
         return thread.id
 
     # Asynchronous method to retrieve a specific thread by its ID

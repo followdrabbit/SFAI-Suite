@@ -1,0 +1,6 @@
+**Task:**
+- Compare the content from the last message with the file FILENAME_PLACEHOLDER and check if there is any recommendation in the attached file that is not on the content and show me.
+
+**Instructions:**
+- Omit introductions, conclusions, comments, and warnings about content limitations.
+- For each recommendation, include the filename for references

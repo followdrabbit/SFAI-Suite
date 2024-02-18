@@ -1,4 +1,4 @@
-def replace_text_in_file(file_path, variable_to_replace, new_value):
+def replace_text_in_file(file_path: str, variable_to_replace: str, new_value: str):
     """
     Reads the content of a file, replaces all occurrences of a specified variable
     with a new value, and returns the modified content.

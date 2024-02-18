@@ -1,0 +1,10 @@
+[
+    {
+        "role": "assistant",
+        "message": "1. Name: Amazon S3 Security Best Practices and Bucket Defaults\n   URL: https://aws.amazon.com/about-aws/whats-new/2023/04/amazon-s3-security-best-practices-buckets-default/\n\n2. Name: Security in Amazon S3\n   URL: https://docs.aws.amazon.com/AmazonS3/latest/userguide/security.html"
+    },
+    {
+        "role": "user",
+        "message": "**Task**\n- List 2 webpages from AWS domain that contain security recommendations for Amazon S3\n\n**Instructions**\n- Omit introductions, conclusions, comments, and warnings about content limitations.\n- Return only the name of the pages and the URL for immediate access following the provided template.\n\n\n**Template**\n\n1. Configuration and Vulnerability Analysis in Amazon S3: https://docs.aws.amazon.com/AmazonS3/latest/userguide/vulnerability-analysis-and-management.html\n2. Security Best Practices in Amazon S3: https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html)\n"
+    }
+]

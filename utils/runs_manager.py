@@ -14,7 +14,6 @@ class OpenAIRunsManager:
     # Asynchronously create a new run
     async def create_run(self, thread_id: str, assistant_id: str):
         run = await self.client.beta.threads.runs.create(thread_id=thread_id, assistant_id=assistant_id)
-        print(f"New run created with ID: {run.id}")
         return run.id
 
     # Asynchronously retrieve information about a specific run
@@ -98,16 +97,15 @@ class OpenAIRunsManager:
 
     # Asynchronously process a run and check its status
     async def process_run(self, thread_id: str, run_id: str):
-        try:
-            print("Checking run status.")
+        try:  
             while True:
                 run = openai.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
-
+                
                 if run.status == "queued":
                     print(f"Run status.............. {run.status}")
                     await asyncio.sleep(5)  # Wait for 5 seconds before checking the status again
 
-                if run.status == "in_progress":
+                elif run.status == "in_progress":
                     print(f"Run status.............. {run.status}")
                     await asyncio.sleep(5)  # Wait for 5 seconds before checking the status again
 
@@ -122,6 +120,10 @@ class OpenAIRunsManager:
                         result_messages.append(msg)
                     return result_messages
 
+                elif run.status == "requires_action":
+                    print(f"Run status.............. {run.status}")
+                    return run
+
                 elif run.status == "failed":
                     print("The run failed.")
                     print(f"Error: {json.dumps(str(run), indent=4)}")
@@ -133,12 +135,23 @@ class OpenAIRunsManager:
                     exit(1)
 
                 else:
-                    print("Unexpected run status")
+                    print(f"Unexpected run status:.....{run.status}")
                     print(f"Error: {json.dumps(str(run), indent=4)}")
                     exit(1)
 
         except Exception as e:
             print(f"Error checking the run status: {e}")
+
+
+    async def submit_tool_outputs(self, thread_id: str, run_id: str, tool_outputs: list):
+        try:
+            return openai.beta.threads.runs.submit_tool_outputs(
+                thread_id=thread_id,
+                run_id=run_id,
+                tool_outputs=tool_outputs
+            )
+        except Exception as e:
+            print(f"Error: {e}")
 
 # Main async function to execute the manager
 async def main():
