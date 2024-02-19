@@ -29,6 +29,13 @@ assistants_info = {
         ],
         "model": "gpt-4-0125-preview"
     },
+    "DocWriter": {
+        "instructions": "A specialized assistant for read contents and write documments. Your goal is to read all chat history, extract each recommendation and create a list of recommendations",
+        "tools": [
+            {"type": "code_interpreter"},
+        ],
+        "model": "gpt-4-0125-preview"
+    },
     "ExternalResearcher": {
         "instructions": "You are a security expert. Your goal is to provide answers based on information from the internet.\n You must use the provided Tavily search API function to find relevant online information.\n You should never use your own knowledge to answer questions.\n Please include relevant url sources in the end of your answers.",
         "tools": [{

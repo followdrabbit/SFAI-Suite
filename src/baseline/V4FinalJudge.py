@@ -23,6 +23,7 @@ TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 BASELINESECURITYEXPERT_ID = os.getenv("BASELINESECURITYEXPERT_ID")
 SECURITYGUARDIANAI_ID = os.getenv("SECURITYGUARDIANAI_ID")
 EXTERNALRESEARCHER_ID = os.getenv("EXTERNALRESEARCHER_ID")
+DOCWRITER_ID = os.getenv("DOCWRITER_ID")
 DATA_RAW_DIR = "data/raw"
 DATA_DIR = "data"
 PROMPT1 = 'prompts/FinalJudgePart1'
@@ -141,7 +142,7 @@ async def generate_baseline(technology):
     global chat_data
     generate_baseline_prompt = replace_text_in_file(PROMPT6, TECHNOLOGY_PLACEHOLDER, technology)  
     message_display("  Generating document  ")
-    run_id = await create_message_and_run(thread_id, generate_baseline_prompt, BASELINESECURITYEXPERT_ID)
+    run_id = await create_message_and_run(thread_id, generate_baseline_prompt, DOCWRITER_ID)
     chat_data = await process_run(thread_id, run_id)
 
 def extract_response(raw_data):

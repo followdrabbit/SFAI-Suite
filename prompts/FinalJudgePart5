@@ -8,10 +8,4 @@
 
 **Template**
 
-1. Implement the principle of least privilege for IAM permissions (AWS Security Best Practices): Ensure IAM policies for S3 are restricted to necessary operations. Source: https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html
-
-2. Enable Multi-Factor Authentication (MFA) for object deletion (CIS AWS Foundations): Require multi-factor authentication to delete objects. Source: https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf
-
-3. Enable server-side encryption for all objects stored in S3 (NIST Special Publication 800-53): Use AWS S3 SSE to protect data at rest. Source: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf
-
-4. Use policies to enforce encryption on upload (AWS Security Best Practices): Configure bucket policies to reject unencrypted object uploads. Source: https://docs.aws.amazon.com/AmazonS3/latest/dev/using-iam-policies.html
+Implement the principle of least privilege for IAM permissions (AWS Security Best Practices): Ensure IAM policies for S3 are restricted to necessary operations. Source: https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html

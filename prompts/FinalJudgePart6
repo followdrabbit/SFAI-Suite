@@ -8,6 +8,4 @@
 
 **Template**
 
-1. Implement the principle of least privilege for IAM permissions (AWS Security Best Practices): Ensure IAM policies for S3 are restricted to necessary operations. SOURCE: https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html
-
-2. Enable Multi-Factor Authentication (MFA) for object deletion (CIS AWS Foundations): Require multi-factor authentication to delete objects. Source: AWS S3 - SEC03-BP07 Analyze public and cross-account access.md
+Implement the principle of least privilege for IAM permissions (AWS Security Best Practices): Ensure IAM policies for S3 are restricted to necessary operations. SOURCE: https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html
