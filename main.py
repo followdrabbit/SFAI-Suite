@@ -1,45 +1,21 @@
 import asyncio
-import os
 import argparse
 from dotenv import load_dotenv
-from utils.assistant_manager import OpenAIAssistantManager
-from src.baseline.baseline_creator import create_baseline
+from src.baseline_creator import create_baseline
 
 async def main():
-    # Load environment variables (API key) from the .env file
-    load_dotenv()
-    api_key = os.getenv('OPENAI_API_KEY')
-    if api_key is None:
-        print("Error: OPENAI_API_KEY not found. Please check your .env file.")
-        return
+    # Configuração inicial
+    load_dotenv()  # Carrega variáveis de ambiente do arquivo .env
+    parser = argparse.ArgumentParser(description='Generate a security baseline for a new technology.')
 
-    # Create an instance of the assistant manager with the API key
-    # manager = OpenAIAssistantManager(api_key)
+    # Define os argumentos de linha de comando
+    parser.add_argument('-tec', '--technology', type=str, required=True, help='The name of the new technology')
 
-    # Setup argparse for command line arguments
-    parser = argparse.ArgumentParser(description='Calls controls_creator with technology and ticket parameters.')
-    parser.add_argument('-tec', '--technology', type=str, required=True, help='The new technology name')
-    parser.add_argument('-tic', '--ticket', type=str, required=True, help='The ticket associated with the change')
-    
-    # Parse the provided arguments
+    # Analisa os argumentos fornecidos
     args = parser.parse_args()
 
-    # Call the list_assistants method and get the unique assistants
-    # unique_assistants = await manager.list_assistants()
-
-    # Find the ID of the assistant named "Cloud Security Expert"
-    #assistant_id = None
-    #for name, id in unique_assistants.items():
-    #    if name == "Cloud Security Expert":
-    #        assistant_id = id
-    #        break
-
-    #if assistant_id is None:
-    #    print("Assistant 'Cloud Security Expert' not found.")
-    #    return
-
-    # Call the controls_creator function with the technology and the assistant ID
-    await create_baseline(technology=args.technology, api_key=api_key, ticket=args.ticket)
+    # Chama a função para criar a baseline, agora apenas com o argumento da tecnologia
+    await create_baseline(technology=args.technology)
 
 if __name__ == "__main__":
     asyncio.run(main())

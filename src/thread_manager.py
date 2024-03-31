@@ -15,7 +15,6 @@ class OpenAIThreadManager:
     # Asynchronous method to create a new thread
     async def create_thread(self, messages: Optional[list] = None, metadata: Optional[dict] = None):
         thread = await self.client.beta.threads.create()
-        print(f"New thread created with ID: {thread.id}")
         return thread.id
 
     # Asynchronous method to retrieve a specific thread by its ID
@@ -33,7 +32,7 @@ class OpenAIThreadManager:
     # Asynchronous method to create a message in a specific thread.
     async def create_message(self, thread_id: str, content: str, role: str = "user"):
         token_count = self.approximate_token_count(content)  # Getting the token count for the message.
-        messsage = await self.client.beta.threads.messages.create(thread_id=thread_id, role=role, content=content)
+        await self.client.beta.threads.messages.create(thread_id=thread_id, role=role, content=content)
         print(f"Tokens used in message: {token_count}")  # Printing the number of tokens used.
 
 

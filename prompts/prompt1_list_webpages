@@ -1,0 +1,13 @@
+**Task**
+- List 10 websites from AWS, Trend Micro and  Sysdig domains that contains security recommendations for PRODUCT_NAME
+
+**Instructions**
+- Omit introductions, conclusions, comments, and warnings about content limitations.
+- Return only the name of the pages and the URL for immediate access following the provided template.
+
+
+**Template**
+
+1. Configuration and Vulnerability Analysis in Amazon S3: https://docs.aws.amazon.com/AmazonS3/latest/userguide/vulnerability-analysis-and-management.html
+
+2. Use policies to enforce encryption on upload (AWS Security Best Practices): Configure bucket policies to reject unencrypted object uploads. URL: https://docs.aws.amazon.com/AmazonS3/latest/dev/using-iam-policies.html

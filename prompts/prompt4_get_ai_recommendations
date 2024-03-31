@@ -1,0 +1,11 @@
+**Task:**
+- List security controls for PRODUCT_NAME based on guidelines from CIS, NIST, AWS Security Best Practices, and STIGs.
+
+**Instructions:**
+- Omit introductions, conclusions, comments, and warnings about content limitations.
+- For each control, include the specific source and a URL for direct access to additional details following the template below.
+
+
+**Template**
+
+Implement the principle of least privilege for IAM permissions (AWS Security Best Practices): Ensure IAM policies for S3 are restricted to necessary operations. Source: https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html

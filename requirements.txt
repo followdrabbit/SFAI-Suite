@@ -3,3 +3,4 @@ openai
 tiktoken
 jinja2
 pandas
+tavily-python
