@@ -1,25 +1,21 @@
 import asyncio
-import os
 import argparse
 from dotenv import load_dotenv
-import openai
-from utils.assistant_manager import OpenAIAssistantManager
-from src.baseline.V4FinalJudge import create_baseline
+from src.baseline_creator import create_baseline
 
 async def main():
+    # Configuração inicial
+    load_dotenv()  # Carrega variáveis de ambiente do arquivo .env
+    parser = argparse.ArgumentParser(description='Generate a security baseline for a new technology.')
 
-    # Setup argparse for command line arguments
-    parser = argparse.ArgumentParser(description='Calls controls_creator with technology and ticket parameters.')
-    parser.add_argument('-tec', '--technology', type=str, required=True, help='The new technology name')
-    parser.add_argument('-tic', '--ticket', type=str, required=True, help='The ticket associated with the change')
-    
-    # Parse the provided arguments
+    # Define os argumentos de linha de comando
+    parser.add_argument('-tec', '--technology', type=str, required=True, help='The name of the new technology')
+
+    # Analisa os argumentos fornecidos
     args = parser.parse_args()
 
-    # Call the controls_creator function with the technology and the assistant ID
-    await create_baseline(technology=args.technology, ticket=args.ticket)
-
-
+    # Chama a função para criar a baseline, agora apenas com o argumento da tecnologia
+    await create_baseline(technology=args.technology)
 
 if __name__ == "__main__":
     asyncio.run(main())

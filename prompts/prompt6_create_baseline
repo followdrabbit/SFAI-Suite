@@ -1,0 +1,13 @@
+**Task:**
+- list all recommendations from this thread in a markdown format.
+
+**Instructions:**
+- Omit introductions, conclusions, comments, and warnings about content limitations.
+- For each recommendation follow the provided template
+
+
+**Template**
+
+**1. The name of the security control in a imperative form** .
+  - **Rational:** Explain why this control is important.
+  - **References:** Cite references informed in this thread and all documents that contains recommendations for this control.

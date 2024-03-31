@@ -1,0 +1,28 @@
+**Instructions:**
+- Use direct imperative commands.
+- Omit introductions, conclusions, comments, and warnings about content limitations.
+- At the end of the generated document, add the following sections:
+
+### Security Controls Comparison
+- Check each security control against linked documents. Cite relevant sections. Clearly indicate missing controls.
+- Highlight discrepancies where documents contradict or conflict with baseline recommendations.
+
+### Recommendations for Security Gaps
+- Provide recommendations for addressing security gaps between the baseline and linked documents.
+
+### Additional Best Practices
+- Suggest improvements or additional security controls not in the baseline but considered best practices.
+
+
+**Task:**
+- Verify the coverage of each security control in linked documents.-
+- Identify gaps or discrepancies.
+- Conduct a detailed analysis and integrate security control recommendations from this thread with those in the provided documents following the provided template
+
+**Template**
+
+**1. Control:** List the security control.
+  - **Rational:** Explain why this control is important.
+  - **References:** Cite references informed in this thread and all documents that contains recommendations for this control.
+
+Ensure the AWS infrastructure configuration aligns with the best security practices and internal policies by identifying and mitigating potential risks. Follow the template and instructions closely to generate a comprehensive analysis and report.
